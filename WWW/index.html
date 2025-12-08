@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学缘家教通 - 连接优秀家教与需要帮助的家庭</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* 导航栏样式 */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .login-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background: #218838;
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 角色切换标签 */
+        .role-tabs {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 功能卡片 */
+        .action-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .card-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .card-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        /* 信息列表区域 */
+        .info-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-btn {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: #5a6fd8;
+        }
+
+        /* 信息卡片 */
+        .info-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .info-card {
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .info-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .info-type {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+
+        .info-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .info-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .info-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .contact-btn {
+            padding: 8px 16px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .contact-btn:hover {
+            background: #218838;
+        }
+        
+        .secondary-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .secondary-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .detail-btn {
+            padding: 8px 16px;
+            background: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .detail-btn:hover {
+            background: #138496;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* 分页控件样式 */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .pagination-btn {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #5a6fd8;
+        }
+
+        .pagination-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        #currentPageInfo {
+            color: #333;
+            font-weight: 500;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .action-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-buttons {
+                flex-direction: column;
+            }
+
+            .search-bar {
+                flex-direction: column;
+            }
+
+            .info-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .info-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .info-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* 消息提示 */
+        .message {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 3000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.success {
+            background: #28a745;
+        }
+
+        .message.error {
+            background: #dc3545;
+        }
+
+        .message.info {
+            background: #17a2b8;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">学缘家教通</div>
+            <ul class="nav-links">
+                <li><a href="#home" onclick="goToHome(event)">首页</a></li>
+                <li><a href="#tutors" onclick="scrollToTutorSearchWithLogin(event)">找家教</a></li>
+                <li><a href="#jobs" onclick="scrollToJobSearchWithLogin(event)">家教信息</a></li>
+                <li><a href="#about">关于我们</a></li>
+            </ul>
+            <div class="user-menu">
+                <div class="user-avatar" id="userAvatar" style="display: none;">未</div>
+                <span id="userName" style="display: none;">未登录</span>
+                <button class="login-btn" id="loginBtn" onclick="goToLogin()">登录</button>
+                <button class="logout-btn" id="logoutBtn" onclick="logout()" style="display: none;">退出登录</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="main-content">
+        <!-- 角色切换标签 -->
+        <div class="role-tabs">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('parent')">
+                    👨‍👩‍👧‍👦 我是家长
+                </button>
+                <button class="tab-btn" onclick="switchTab('tutor')">
+                    🎓 我是家教老师
+                </button>
+            </div>
+
+            <!-- 家长功能区域 -->
+            <div id="parent-tab" class="tab-content active">
+                <div class="action-cards">
+                    <div class="action-card">
+                        <div class="card-icon">📝</div>
+                        <h3 class="card-title">发布家教需求</h3>
+                        <p class="card-description">发布您孩子的家教需求，让优秀的家教老师联系您</p>
+                        <button class="card-btn" onclick="openModal('parent-demand')">发布需求</button>
+                    </div>
+                    <div class="action-card">
+                        <div class="card-icon">🔍</div>
+                        <h3 class="card-title">搜索家教老师</h3>
+                        <p class="card-description">搜索合适的家教老师，查看他们的资质、经验和评价</p>
+                        <button class="card-btn" onclick="scrollToTutorList()">搜索老师</button>
+                    </div>
+                </div>
+
+                <!-- 家教老师列表 -->
+                <div class="info-section" id="tutor-list">
+                    <div class="section-header">
+                        <h2 class="section-title">家教老师信息</h2>
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" class="search-input" id="tutorSearch" placeholder="搜索家教老师的科目、地区、学校...">
+                        <select class="search-input" id="subjectFilter" style="flex: 0 0 200px;">
+                            <option value="">所有科目</option>
+                            <option value="数学">数学</option>
+                            <option value="语文">语文</option>
+                            <option value="英语">英语</option>
+                            <option value="物理">物理</option>
+                            <option value="化学">化学</option>
+                            <option value="生物">生物</option>
+                        </select>
+                        <button class="search-btn" onclick="searchTutors()">搜索老师</button>
+                    </div>
+                    <div class="info-grid" id="tutorList">
+                        <!-- 动态加载家教老师列表 -->
+                    </div>
+                    <!-- 分页控件 -->
+                    <div id="tutorPagination" class="pagination-container" style="display: none;">
+                        <div class="pagination-info">
+                            <span id="tutorPaginationInfo">共 0 条记录</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <button id="prevTutorPageBtn" class="pagination-btn" onclick="changeTutorPage(-1)">上一页</button>
+                            <span id="currentTutorPageInfo">第 1 页，共 1 页</span>
+                            <button id="nextTutorPageBtn" class="pagination-btn" onclick="changeTutorPage(1)">下一页</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 家教老师功能区域 -->
+            <div id="tutor-tab" class="tab-content">
+                <div class="action-cards">
+                    <div class="action-card">
+                        <div class="card-icon">🎓</div>
+                        <h3 class="card-title">成为家教老师</h3>
+                        <p class="card-description">发布您的家教信息，展示教学能力，寻找合适的学生</p>
+                        <button class="card-btn" onclick="openModal('tutor-profile')">成为家教老师</button>
+                    </div>
+                    <div class="action-card">
+                        <div class="card-icon">🔍</div>
+                        <h3 class="card-title">搜索家教信息</h3>
+                        <p class="card-description">搜索家长发布的家教需求，找到合适的教学机会</p>
+                        <button class="card-btn" onclick="scrollToJobList()">搜索需求</button>
+                    </div>
+                </div>
+
+                <!-- 家教需求列表 -->
+                <div class="info-section" id="job-list">
+                    <div class="section-header">
+                        <h2 class="section-title">家教信息</h2>
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" class="search-input" id="jobSearch" placeholder="搜索家教信息的科目、地区、薪资...">
+                        <select class="search-input" id="jobSubjectFilter" style="flex: 0 0 200px;">
+                            <option value="">所有科目</option>
+                            <option value="数学">数学</option>
+                            <option value="语文">语文</option>
+                            <option value="英语">英语</option>
+                            <option value="物理">物理</option>
+                            <option value="化学">化学</option>
+                            <option value="生物">生物</option>
+                        </select>
+                        <button class="search-btn" onclick="searchJobs()">搜索家教信息</button>
+                    </div>
+                    <div class="info-grid" id="jobList">
+                        <!-- 动态加载家教需求列表 -->
+                    </div>
+                    <!-- 分页控件 -->
+                    <div id="jobPagination" class="pagination-container" style="display: none;">
+                        <div class="pagination-info">
+                            <span id="paginationInfo">共 0 条记录</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <button id="prevPageBtn" class="pagination-btn" onclick="changeJobPage(-1)">上一页</button>
+                            <span id="currentPageInfo">第 1 页，共 1 页</span>
+                            <button id="nextPageBtn" class="pagination-btn" onclick="changeJobPage(1)">下一页</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 发布家长需求模态框 -->
+    <div id="parent-demand" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">发布家教需求</h2>
+                <button class="close-btn" onclick="closeModal('parent-demand')">×</button>
+            </div>
+            <form id="parentDemandForm">
+                <div class="form-group">
+                    <label for="studentName">学生姓名</label>
+                    <input type="text" id="studentName" required>
+                </div>
+                <div class="form-group">
+                    <label for="grade">年级</label>
+                    <select id="grade" required>
+                        <option value="">请选择年级</option>
+                        <option value="小学一年级">小学一年级</option>
+                        <option value="小学二年级">小学二年级</option>
+                        <option value="小学三年级">小学三年级</option>
+                        <option value="小学四年级">小学四年级</option>
+                        <option value="小学五年级">小学五年级</option>
+                        <option value="小学六年级">小学六年级</option>
+                        <option value="初中一年级">初中一年级</option>
+                        <option value="初中二年级">初中二年级</option>
+                        <option value="初中三年级">初中三年级</option>
+                        <option value="高中一年级">高中一年级</option>
+                        <option value="高中二年级">高中二年级</option>
+                        <option value="高中三年级">高中三年级</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="subjects">需要辅导的科目</label>
+                    <input type="text" id="subjects" placeholder="如：数学、英语" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">上课地点</label>
+                    <input type="text" id="location" placeholder="如：海淀区中关村" required>
+                </div>
+                <div class="form-group">
+                    <label for="schedule">上课时间</label>
+                    <input type="text" id="schedule" placeholder="如：周末上午" required>
+                </div>
+                <div class="form-group">
+                    <label for="salary">薪资待遇</label>
+                    <input type="text" id="salary" placeholder="如：100-150元/小时" required>
+                </div>
+                <div class="form-group">
+                    <label for="requirements">具体要求</label>
+                    <textarea id="requirements" placeholder="请描述您的具体要求，如孩子学习情况、期望的教学方式等"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="contactPhone">联系电话</label>
+                    <input type="tel" id="contactPhone" required>
+                </div>
+                <button type="submit" class="submit-btn">发布需求</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 发布家教老师信息模态框 -->
+    <div id="tutor-profile" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">成为家教老师</h2>
+                <button class="close-btn" onclick="closeModal('tutor-profile')">×</button>
+            </div>
+            <form id="tutorProfileForm">
+                <div class="form-group">
+                    <label for="tutorName">姓名</label>
+                    <input type="text" id="tutorName" required>
+                </div>
+                <div class="form-group">
+                    <label for="education">教育背景</label>
+                    <input type="text" id="education" placeholder="如：清华大学计算机系大三" required>
+                </div>
+                <div class="form-group">
+                    <label for="subjects">擅长科目</label>
+                    <input type="text" id="tutorSubjects" placeholder="如：数学、物理、编程" required>
+                </div>
+                <div class="form-group">
+                    <label for="experience">教学经验</label>
+                    <input type="text" id="experience" placeholder="如：3年教学经验" required>
+                </div>
+                <div class="form-group">
+                    <label for="teachingAreas">可授课地区</label>
+                    <input type="text" id="teachingAreas" placeholder="如：海淀区、朝阳区" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutorSchedule">可授课时间</label>
+                    <input type="text" id="tutorSchedule" placeholder="如：周末全天、工作日晚上" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutorSalary">期望薪资</label>
+                    <input type="text" id="tutorSalary" placeholder="如：120-200元/小时" required>
+                </div>
+                <div class="form-group">
+                    <label for="teachingStyle">教学特色</label>
+                    <textarea id="teachingStyle" placeholder="请描述您的教学特色和方法"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="tutorPhone">联系电话</label>
+                    <input type="tel" id="tutorPhone" required>
+                </div>
+                <button type="submit" class="submit-btn">发布信息</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 联系模态框 -->
+    <div id="contact" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">联系信息</h2>
+                <button class="close-btn" onclick="closeModal('contact')">×</button>
+            </div>
+            <div id="contactInfo">
+                <!-- 动态显示联系信息 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentUser = null;
+        let currentRole = 'parent';
+        
+        // 分页相关全局变量
+        let currentPage = 1;
+        let totalPages = 1;
+        let totalRecords = 0;
+        const recordsPerPage = 5;
+        let allJobs = []; // 存储所有家教信息
+        let allTutors = []; // 存储所有家教老师
+        let currentTutorPage = 1;
+        let totalTutorPages = 0;
+        let totalTutorRecords = 0;
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUserDisplay();
+            loadTutorList();
+            loadJobList();
+        });
+
+        // 更新用户显示状态
+        function updateUserDisplay() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const loginBtn = document.getElementById('loginBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+
+            if (currentUser && currentUser.id) {
+                // 用户已登录
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+                userAvatar.style.display = 'block';
+                userName.style.display = 'block';
+                userName.textContent = currentUser.fullName || currentUser.username;
+                userAvatar.textContent = (currentUser.fullName || currentUser.username).charAt(0);
+            } else {
+                // 用户未登录
+                loginBtn.style.display = 'block';
+                logoutBtn.style.display = 'none';
+                userAvatar.style.display = 'none';
+                userName.style.display = 'none';
+            }
+        }
+
+        // 检查用户登录状态
+        function checkAuthStatus() {
+            fetch('check_auth.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.logged_in) {
+                        currentUser = data.user;
+                        updateUserDisplay();
+                    } else {
+                        // 不自动跳转，只显示提示信息
+                        showMessage('您尚未登录，部分功能可能无法使用', 'info');
+                    }
+                })
+                .catch(error => {
+                    console.error('检查登录状态失败:', error);
+                    showMessage('网络错误，请检查网络连接', 'error');
+                });
+        }
+
+        // 切换标签页
+        function switchTab(role) {
+            currentRole = role;
+            
+            // 更新标签按钮状态
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 更新标签内容显示
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            if (role === 'parent') {
+                document.getElementById('parent-tab').classList.add('active');
+            } else {
+                document.getElementById('tutor-tab').classList.add('active');
+            }
+        }
+
+        // 打开模态框
+        function openModal(modalId) {
+            // 检查是否需要登录的功能
+            if (modalId === 'parent-demand' || modalId === 'tutor-profile') {
+                if (!checkLoginStatus()) {
+                    showLoginRequired();
+                    return;
+                }
+            }
+            
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // 滚动到指定区域
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // 显示消息
+        function showMessage(text, type = 'info') {
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.textContent = text;
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+        }
+
+        // 发布家长需求表单提交
+        document.getElementById('parentDemandForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 检查用户是否已登录
+            if (!checkLoginStatus()) {
+                showMessage('请先登录后再发布需求', 'warning');
+                return;
+            }
+            
+            const formData = {
+                student_name: document.getElementById('studentName').value,
+                grade: document.getElementById('grade').value,
+                subjects: document.getElementById('subjects').value,
+                location: document.getElementById('location').value,
+                schedule: document.getElementById('schedule').value,
+                salary: document.getElementById('salary').value,
+                requirements: document.getElementById('requirements').value,
+                contact_phone: document.getElementById('contactPhone').value,
+                user_id: JSON.parse(localStorage.getItem('currentUser')).id
+            };
+            
+            // 发送API请求
+            fetch('api_add_tutoring_request.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('家教需求发布成功！', 'success');
+                    closeModal('parent-demand');
+                    this.reset();
+                    // 重新加载列表并重置到第一页
+                    loadJobListFromAPI();
+                } else {
+                    showMessage('发布失败：' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('网络错误，请稍后重试', 'error');
+            });
+        });
+
+        // 发布家教老师信息表单提交
+        document.getElementById('tutorProfileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 检查用户是否已登录
+            if (!checkLoginStatus()) {
+                showMessage('请先登录后再发布家教兼职信息', 'warning');
+                return;
+            }
+            
+            const formData = {
+                name: document.getElementById('tutorName').value,
+                education: document.getElementById('education').value,
+                subjects: document.getElementById('tutorSubjects').value,
+                experience: document.getElementById('experience').value,
+                teaching_areas: document.getElementById('teachingAreas').value,
+                schedule: document.getElementById('tutorSchedule').value,
+                salary: document.getElementById('tutorSalary').value,
+                teaching_style: document.getElementById('teachingStyle').value,
+                contact_phone: document.getElementById('tutorPhone').value,
+                user_id: JSON.parse(localStorage.getItem('currentUser')).id
+            };
+            
+            // 发送API请求
+            fetch('api_add_tutor_profile.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('家教兼职信息发布成功！', 'success');
+                    closeModal('tutor-profile');
+                    this.reset();
+                    // 重新加载老师列表
+                    loadTutorListFromAPI();
+                } else {
+                    showMessage('发布失败：' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('网络错误，请稍后重试', 'error');
+            });
+        });
+
+        // 从API加载家教老师列表
+        function loadTutorListFromAPI() {
+            const tutorList = document.getElementById('tutorList');
+            
+            // 显示加载状态
+            tutorList.innerHTML = '<div style="text-align: center; padding: 2rem;">正在加载家教老师信息...</div>';
+            
+            // 从API获取数据
+            fetch('api_get_tutor_profiles.php?limit=100') // 获取更多数据用于分页
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data.profiles.length > 0) {
+                        allTutors = data.data.profiles;
+                        totalTutorRecords = allTutors.length;
+                        totalTutorPages = Math.ceil(totalTutorRecords / recordsPerPage);
+                        currentTutorPage = 1; // 重置到第一页
+                        
+                        displayTutorsPage();
+                        updateTutorPaginationInfo();
+                    } else {
+                        allTutors = [];
+                        totalTutorRecords = 0;
+                        totalTutorPages = 0;
+                        tutorList.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">暂无家教老师信息</div>';
+                        document.getElementById('tutorPagination').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading tutors:', error);
+                    tutorList.innerHTML = '<div style="text-align: center; padding: 2rem; color: red;">加载失败，请刷新页面重试</div>';
+                    document.getElementById('tutorPagination').style.display = 'none';
+                });
+        }
+
+        // 显示当前页的家教老师
+        function displayTutorsPage() {
+            const tutorList = document.getElementById('tutorList');
+            const startIndex = (currentTutorPage - 1) * recordsPerPage;
+            const endIndex = startIndex + recordsPerPage;
+            const currentTutors = allTutors.slice(startIndex, endIndex);
+            
+            if (currentTutors.length > 0) {
+                tutorList.innerHTML = currentTutors.map(tutor => `
+                    <div class="info-card">
+                        <div class="info-header">
+                            <h3 class="info-title">${tutor.name}</h3>
+                            <span class="info-type">${tutor.subjects}</span>
+                        </div>
+                        <div class="info-meta">
+                            <span>🎓 ${tutor.education}</span>
+                            <span>💼 ${tutor.experience}</span>
+                            <span>💰 ${tutor.salary}</span>
+                        </div>
+                        <div class="info-description">
+                            可授课地区：${tutor.teaching_areas}
+                        </div>
+                        <div class="info-actions">
+                            <button class="contact-btn" onclick="showContactInfo('${tutor.name}', '${tutor.contact_phone}')">联系老师</button>
+                            <button class="detail-btn" onclick="showTutorDetail(${tutor.id})">查看详情</button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                tutorList.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">当前页面没有家教老师信息</div>';
+            }
+        }
+
+        // 更新家教老师分页信息
+        function updateTutorPaginationInfo() {
+            const paginationContainer = document.getElementById('tutorPagination');
+            
+            if (totalTutorRecords > recordsPerPage) {
+                paginationContainer.style.display = 'flex';
+                
+                // 更新记录信息
+                document.getElementById('tutorPaginationInfo').textContent = `共 ${totalTutorRecords} 条记录`;
+                
+                // 更新页面信息
+                document.getElementById('currentTutorPageInfo').textContent = `第 ${currentTutorPage} 页，共 ${totalTutorPages} 页`;
+                
+                // 更新按钮状态
+                document.getElementById('prevTutorPageBtn').disabled = currentTutorPage <= 1;
+                document.getElementById('nextTutorPageBtn').disabled = currentTutorPage >= totalTutorPages;
+            } else {
+                paginationContainer.style.display = 'none';
+            }
+        }
+
+        // 切换家教老师页面
+        function changeTutorPage(direction) {
+            const newPage = currentTutorPage + direction;
+            
+            if (newPage >= 1 && newPage <= totalTutorPages) {
+                currentTutorPage = newPage;
+                displayTutorsPage();
+                updateTutorPaginationInfo();
+                
+                // 滚动到家教老师列表顶部
+                document.getElementById('tutorList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // 保留原有函数作为备用
+        function loadTutorList() {
+            loadTutorListFromAPI();
+        }
+
+        // 从API加载家教需求列表
+        function loadJobListFromAPI() {
+            const jobList = document.getElementById('jobList');
+            
+            // 显示加载状态
+            jobList.innerHTML = '<div style="text-align: center; padding: 2rem;">正在加载家教信息...</div>';
+            
+            // 从API获取数据
+            fetch('api_get_tutoring_requests.php?limit=100') // 获取更多数据用于分页
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data.requests.length > 0) {
+                        allJobs = data.data.requests;
+                        totalRecords = allJobs.length;
+                        totalPages = Math.ceil(totalRecords / recordsPerPage);
+                        currentPage = 1; // 重置到第一页
+                        
+                        displayJobsPage();
+                        updatePaginationInfo();
+                    } else {
+                        allJobs = [];
+                        totalRecords = 0;
+                        totalPages = 0;
+                        jobList.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">暂无家教信息</div>';
+                        document.getElementById('jobPagination').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading jobs:', error);
+                    jobList.innerHTML = '<div style="text-align: center; padding: 2rem; color: red;">加载失败，请刷新页面重试</div>';
+                    document.getElementById('jobPagination').style.display = 'none';
+                });
+        }
+
+        // 显示当前页的家教信息
+        function displayJobsPage() {
+            const jobList = document.getElementById('jobList');
+            const startIndex = (currentPage - 1) * recordsPerPage;
+            const endIndex = startIndex + recordsPerPage;
+            const currentJobs = allJobs.slice(startIndex, endIndex);
+            
+            if (currentJobs.length > 0) {
+                jobList.innerHTML = currentJobs.map(job => `
+                    <div class="info-card">
+                        <div class="info-header">
+                            <h3 class="info-title">${job.student_name} (${job.grade})</h3>
+                            <span class="info-type">${job.subjects}</span>
+                        </div>
+                        <div class="info-meta">
+                            <span>📍 ${job.location}</span>
+                            <span>⏰ ${job.schedule}</span>
+                            <span>💰 ${job.salary}</span>
+                        </div>
+                        ${job.requirements ? `<div class="info-description">${job.requirements}</div>` : ''}
+                        <div class="info-actions">
+                            <button class="contact-btn" onclick="showContactInfo('${job.parent_name}', '${job.contact_phone}')">联系家长</button>
+                            <button class="detail-btn" onclick="showJobDetail(${job.id})">查看详情</button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                jobList.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">当前页面没有家教信息</div>';
+            }
+        }
+
+        // 更新分页信息
+        function updatePaginationInfo() {
+            const paginationContainer = document.getElementById('jobPagination');
+            
+            if (totalRecords > recordsPerPage) {
+                paginationContainer.style.display = 'flex';
+                
+                // 更新记录信息
+                document.getElementById('paginationInfo').textContent = `共 ${totalRecords} 条记录`;
+                
+                // 更新页面信息
+                document.getElementById('currentPageInfo').textContent = `第 ${currentPage} 页，共 ${totalPages} 页`;
+                
+                // 更新按钮状态
+                document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+                document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+            } else {
+                paginationContainer.style.display = 'none';
+            }
+        }
+
+        // 切换页面
+        function changeJobPage(direction) {
+            const newPage = currentPage + direction;
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                displayJobsPage();
+                updatePaginationInfo();
+                
+                // 滚动到家教信息列表顶部
+                document.getElementById('jobList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // 保留原有函数作为备用
+        function loadJobList() {
+            loadJobListFromAPI();
+        }
+
+        // 搜索家教老师
+        function searchTutors() {
+            // 检查登录状态
+            if (!checkLoginStatus()) {
+                showLoginRequired();
+                return;
+            }
+            
+            const searchTerm = document.getElementById('tutorSearch').value;
+            const subjectFilter = document.getElementById('subjectFilter').value;
+            
+            showMessage(`正在搜索家教老师: ${searchTerm || '全部'} ${subjectFilter ? '(' + subjectFilter + ')' : ''}`, 'info');
+            
+            // 构建搜索URL
+            let searchUrl = 'api_get_tutor_profiles.php?limit=100';
+            if (searchTerm) {
+                searchUrl += `&search=${encodeURIComponent(searchTerm)}`;
+            }
+            if (subjectFilter) {
+                searchUrl += `&subject=${encodeURIComponent(subjectFilter)}`;
+            }
+            
+            const tutorList = document.getElementById('tutorList');
+            tutorList.innerHTML = '<div style="text-align: center; padding: 2rem;">正在搜索家教老师...</div>';
+            
+            // 从API获取搜索结果
+            fetch(searchUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data.profiles.length > 0) {
+                        allTutors = data.data.profiles;
+                        totalTutorRecords = allTutors.length;
+                        totalTutorPages = Math.ceil(totalTutorRecords / recordsPerPage);
+                        currentTutorPage = 1; // 搜索结果重置到第一页
+                        
+                        displayTutorsPage();
+                        updateTutorPaginationInfo();
+                    } else {
+                        allTutors = [];
+                        totalTutorRecords = 0;
+                        totalTutorPages = 0;
+                        tutorList.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">未找到匹配的家教老师</div>';
+                        document.getElementById('tutorPagination').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error searching tutors:', error);
+                    tutorList.innerHTML = '<div style="text-align: center; padding: 2rem; color: red;">搜索失败，请稍后重试</div>';
+                    document.getElementById('tutorPagination').style.display = 'none';
+                });
+        }
+
+        // 搜索家教需求
+        function searchJobs() {
+            // 检查登录状态
+            if (!checkLoginStatus()) {
+                showLoginRequired();
+                return;
+            }
+            
+            const searchTerm = document.getElementById('jobSearch').value;
+            const subjectFilter = document.getElementById('jobSubjectFilter').value;
+            
+            showMessage(`正在搜索家教信息: ${searchTerm || '全部'} ${subjectFilter ? '(' + subjectFilter + ')' : ''}`, 'info');
+            
+            // 构建搜索URL
+            let searchUrl = 'api_get_tutoring_requests.php?limit=100';
+            if (searchTerm) {
+                searchUrl += `&search=${encodeURIComponent(searchTerm)}`;
+            }
+            if (subjectFilter) {
+                searchUrl += `&subject=${encodeURIComponent(subjectFilter)}`;
+            }
+            
+            const jobList = document.getElementById('jobList');
+            jobList.innerHTML = '<div style="text-align: center; padding: 2rem;">正在搜索家教信息...</div>';
+            
+            // 从API获取搜索结果
+            fetch(searchUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data.requests.length > 0) {
+                        allJobs = data.data.requests;
+                        totalRecords = allJobs.length;
+                        totalPages = Math.ceil(totalRecords / recordsPerPage);
+                        currentPage = 1; // 搜索结果重置到第一页
+                        
+                        displayJobsPage();
+                        updatePaginationInfo();
+                    } else {
+                        allJobs = [];
+                        totalRecords = 0;
+                        totalPages = 0;
+                        jobList.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">未找到匹配的家教信息</div>';
+                        document.getElementById('jobPagination').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error searching jobs:', error);
+                    jobList.innerHTML = '<div style="text-align: center; padding: 2rem; color: red;">搜索失败，请稍后重试</div>';
+                    document.getElementById('jobPagination').style.display = 'none';
+                });
+        }
+
+        // 滚动到家教老师列表（需要登录）
+        function scrollToTutorList() {
+            // 检查登录状态
+            if (!checkLoginStatus()) {
+                showLoginRequired();
+                return;
+            }
+            
+            // 切换到家长标签页
+            switchTab('parent');
+            
+            // 延迟滚动，确保标签切换完成
+            setTimeout(() => {
+                const tutorList = document.getElementById('tutor-list');
+                if (tutorList) {
+                    tutorList.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }
+            }, 100);
+        }
+
+        // 滚动到家教需求列表（需要登录）
+        function scrollToJobList() {
+            // 检查登录状态
+            if (!checkLoginStatus()) {
+                showLoginRequired();
+                return;
+            }
+            
+            // 切换到家教老师标签页
+            switchTab('tutor');
+            
+            // 延迟滚动，确保标签切换完成
+            setTimeout(() => {
+                const jobList = document.getElementById('job-list');
+                if (jobList) {
+                    jobList.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }
+            }, 100);
+        }
+
+        // 复制电话号码到剪贴板
+        function copyPhoneNumber(phone) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(phone).then(function() {
+                    showMessage('电话号码已复制到剪贴板', 'success');
+                }).catch(function(err) {
+                    // 备用方法
+                    fallbackCopyTextToClipboard(phone);
+                });
+            } else {
+                // 备用方法
+                fallbackCopyTextToClipboard(phone);
+            }
+        }
+
+        // 备用复制方法
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showMessage('电话号码已复制到剪贴板', 'success');
+                } else {
+                    showMessage('复制失败，请手动复制', 'error');
+                }
+            } catch (err) {
+                showMessage('复制失败，请手动复制', 'error');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // 显示联系信息
+        function showContactInfo(name, phone) {
+            // 检查登录状态
+            if (!checkLoginStatus()) {
+                showLoginRequired();
+                return;
+            }
+            
+            // 判断当前用户角色来显示不同的联系信息
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const isTutor = currentUser.user_type === 'tutor';
+            
+            let contactTitle = '联系信息';
+            let contactMessage = '请在合适的时间联系对方，说明您是通过学缘家教通平台看到的联系信息。';
+            
+            if (isTutor) {
+                contactTitle = '家长联系信息';
+                contactMessage = '您好！您可以通过以下联系方式直接与家长沟通，请说明您是通过学缘家教通平台了解到此信息的。建议在工作时间（上午9:00-晚上9:00）联系。';
+            } else {
+                contactTitle = '老师联系信息';
+                contactMessage = '您好！您可以通过以下联系方式与家教老师沟通，请说明您是通过学缘家教通平台了解到此信息的。';
+            }
+            
+            const contactInfo = document.getElementById('contactInfo');
+            contactInfo.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <h3 style="color: #333; margin-bottom: 1rem;">${contactTitle}</h3>
+                    <p style="font-size: 1.1rem; color: #555; margin-bottom: 1rem;">
+                        <strong>${name}</strong>
+                    </p>
+                    <p style="font-size: 1.3rem; color: #667eea; margin-bottom: 1rem; font-weight: bold;">
+                        📞 ${phone}
+                    </p>
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <p style="color: #666; line-height: 1.6; margin: 0;">
+                            ${contactMessage}
+                        </p>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <button class="contact-btn" onclick="copyPhoneNumber('${phone}')" style="margin-right: 0.5rem;">
+                            📋 复制电话号码
+                        </button>
+                        <button class="secondary-btn" onclick="closeModal('contact')" style="margin-left: 0.5rem;">
+                            关闭
+                        </button>
+                    </div>
+                </div>
+            `;
+            openModal('contact');
+        }
+
+        // 显示家教老师详情
+        function showTutorDetail(tutorId) {
+            // 检查登录状态
+            if (!checkLoginStatus()) {
+                showLoginRequired();
+                return;
+            }
+            
+            showMessage(`查看家教老师详情 (ID: ${tutorId})`, 'info');
+            // 这里可以打开详情页面或模态框
+        }
+
+        // 显示家教需求详情
+        function showJobDetail(jobId) {
+            // 检查登录状态
+            if (!checkLoginStatus()) {
+                showLoginRequired();
+                return;
+            }
+            
+            showMessage(`查看家教需求详情 (ID: ${jobId})`, 'info');
+            // 这里可以打开详情页面或模态框
+        }
+
+        // 检查用户是否已登录
+        function checkLoginStatus() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return currentUser && currentUser.id;
+        }
+
+        // 跳转到登录页面
+        function goToLogin() {
+            window.location.href = 'login.html';
+        }
+
+        // 显示需要登录的提示
+        function showLoginRequired() {
+            showMessage('请先登录后再使用此功能', 'info');
+            setTimeout(() => {
+                goToLogin();
+            }, 1500);
+        }
+
+        // 滚动到家教老师搜索功能（带登录检查）
+        function scrollToTutorSearchWithLogin(event) {
+            event.preventDefault();
+            
+            // 检查登录状态
+            if (!checkLoginStatus()) {
+                showLoginRequired();
+                return;
+            }
+            
+            // 切换到家长标签页
+            switchTab('parent');
+            
+            // 延迟滚动，确保标签切换完成
+            setTimeout(() => {
+                const tutorList = document.getElementById('tutor-list');
+                if (tutorList) {
+                    tutorList.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                    
+                    // 聚焦到搜索框
+                    const searchInput = document.getElementById('tutorSearch');
+                    if (searchInput) {
+                        searchInput.focus();
+                    }
+                }
+            }, 100);
+        }
+
+        // 滚动到家教信息搜索功能（带登录检查）
+        function scrollToJobSearchWithLogin(event) {
+            event.preventDefault();
+            
+            // 检查登录状态
+            if (!checkLoginStatus()) {
+                showLoginRequired();
+                return;
+            }
+            
+            // 切换到家教老师标签页
+            switchTab('tutor');
+            
+            // 延迟滚动，确保标签切换完成
+            setTimeout(() => {
+                const jobList = document.getElementById('job-list');
+                if (jobList) {
+                    jobList.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                    
+                    // 聚焦到搜索框
+                    const searchInput = document.getElementById('jobSearch');
+                    if (searchInput) {
+                        searchInput.focus();
+                    }
+                }
+            }, 100);
+        }
+
+        // 回到首页
+        function goToHome(event) {
+            event.preventDefault();
+            
+            // 切换到家长标签页（初始状态）
+            switchTab('parent');
+            
+            // 滚动到页面顶部
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // 退出登录
+        function logout() {
+            // 清除本地存储的用户信息
+            localStorage.removeItem('currentUser');
+            
+            // 更新UI显示
+            updateUserDisplay();
+            
+            // 显示退出成功消息
+            showMessage('已成功退出登录', 'success');
+            
+            // 延迟一下再刷新页面，确保消息显示
+            setTimeout(() => {
+                // 重新加载页面数据
+                loadTutorList();
+                loadJobList();
+            }, 1000);
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // 页面加载时检查登录状态
+        window.addEventListener('load', function() {
+            updateUserDisplay();
+            loadTutorListFromAPI();
+            loadJobListFromAPI();
+        });
+    </script>
+</body>
+</html>

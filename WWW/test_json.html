@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON测试</title>
+</head>
+<body>
+    <h1>JSON数据传输测试</h1>
+    
+    <form id="testForm">
+        <p>
+            <label>用户名:</label>
+            <input type="text" id="username" value="testuser">
+        </p>
+        <p>
+            <label>密码:</label>
+            <input type="password" id="password" value="123456">
+        </p>
+        <p>
+            <button type="submit">发送JSON数据</button>
+        </p>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const requestData = {
+                username: username,
+                password: password
+            };
+            
+            console.log('准备发送的数据:', requestData);
+            console.log('JSON字符串:', JSON.stringify(requestData));
+            
+            fetch('test_json.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                console.log('响应状态:', response.status);
+                console.log('响应头:', response.headers.get('content-type'));
+                return response.json();
+            })
+            .then(data => {
+                console.log('响应数据:', data);
+                document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            })
+            .catch(error => {
+                console.error('错误:', error);
+                document.getElementById('result').innerHTML = '<p style="color: red;">错误: ' + error.message + '</p>';
+            });
+        });
+    </script>
+</body>
+</html>

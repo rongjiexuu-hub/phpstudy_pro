@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家教API测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>家教API功能测试</h1>
+    
+    <div class="container">
+        <h2>1. 发布家教需求测试</h2>
+        <form id="testForm">
+            <div class="form-group">
+                <label>用户ID:</label>
+                <input type="number" id="user_id" value="1" required>
+            </div>
+            <div class="form-group">
+                <label>学生姓名:</label>
+                <input type="text" id="student_name" value="测试学生" required>
+            </div>
+            <div class="form-group">
+                <label>年级:</label>
+                <select id="grade" required>
+                    <option value="小学一年级">小学一年级</option>
+                    <option value="小学二年级">小学二年级</option>
+                    <option value="小学三年级">小学三年级</option>
+                    <option value="初中一年级">初中一年级</option>
+                    <option value="初中二年级" selected>初中二年级</option>
+                    <option value="高中一年级">高中一年级</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>科目:</label>
+                <input type="text" id="subjects" value="数学、英语" required>
+            </div>
+            <div class="form-group">
+                <label>地点:</label>
+                <input type="text" id="location" value="海淀区中关村" required>
+            </div>
+            <div class="form-group">
+                <label>时间:</label>
+                <input type="text" id="schedule" value="周末上午" required>
+            </div>
+            <div class="form-group">
+                <label>薪资:</label>
+                <input type="text" id="salary" value="120-150元/小时" required>
+            </div>
+            <div class="form-group">
+                <label>特殊要求:</label>
+                <textarea id="requirements" rows="3">需要有耐心，经验丰富</textarea>
+            </div>
+            <div class="form-group">
+                <label>联系电话:</label>
+                <input type="tel" id="contact_phone" value="13800138000" required>
+            </div>
+            <button type="submit">发布需求</button>
+        </form>
+        <div id="submitResult" class="result" style="display: none;"></div>
+    </div>
+    
+    <div class="container">
+        <h2>2. 获取家教需求列表测试</h2>
+        <button onclick="testGetRequests()">获取需求列表</button>
+        <button onclick="testSearchRequests()">搜索测试</button>
+        <div id="getResult" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        // 测试发布需求
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                user_id: parseInt(document.getElementById('user_id').value),
+                student_name: document.getElementById('student_name').value,
+                grade: document.getElementById('grade').value,
+                subjects: document.getElementById('subjects').value,
+                location: document.getElementById('location').value,
+                schedule: document.getElementById('schedule').value,
+                salary: document.getElementById('salary').value,
+                requirements: document.getElementById('requirements').value,
+                contact_phone: document.getElementById('contact_phone').value
+            };
+            
+            const resultDiv = document.getElementById('submitResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '正在提交...';
+            
+            fetch('api_add_tutoring_request.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                resultDiv.className = 'result ' + (data.success ? 'success' : 'error');
+                resultDiv.innerHTML = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '网络错误: ' + error.message;
+            });
+        });
+        
+        // 测试获取需求列表
+        function testGetRequests() {
+            const resultDiv = document.getElementById('getResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '正在获取数据...';
+            
+            fetch('api_get_tutoring_requests.php?limit=10')
+                .then(response => response.json())
+                .then(data => {
+                    resultDiv.className = 'result ' + (data.success ? 'success' : 'error');
+                    resultDiv.innerHTML = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '网络错误: ' + error.message;
+                });
+        }
+        
+        // 测试搜索功能
+        function testSearchRequests() {
+            const resultDiv = document.getElementById('getResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '正在搜索...';
+            
+            fetch('api_get_tutoring_requests.php?search=数学&subject=英语&limit=5')
+                .then(response => response.json())
+                .then(data => {
+                    resultDiv.className = 'result ' + (data.success ? 'success' : 'error');
+                    resultDiv.innerHTML = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '网络错误: ' + error.message;
+                });
+        }
+    </script>
+</body>
+</html>
