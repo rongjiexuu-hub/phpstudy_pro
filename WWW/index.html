@@ -93,6 +93,20 @@
             background: #c82333;
         }
 
+        .admin-link {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .admin-link:hover {
+            background: #5a6fd8;
+        }
+
         .login-btn {
             background: #28a745;
             color: white;
@@ -616,13 +630,16 @@
                 <li><a href="#home" onclick="goToHome(event)">首页</a></li>
                 <li><a href="#tutors" onclick="scrollToTutorSearchWithLogin(event)">找家教</a></li>
                 <li><a href="#jobs" onclick="scrollToJobSearchWithLogin(event)">家教信息</a></li>
-                <li><a href="#about">关于我们</a></li>
+                <li><a href="profile.html">个人中心</a></li>
+                <li><a href="messages.html">消息</a></li>
+                <li><a href="orders.html">订单</a></li>
             </ul>
             <div class="user-menu">
                 <div class="user-avatar" id="userAvatar" style="display: none;">未</div>
                 <span id="userName" style="display: none;">未登录</span>
                 <button class="login-btn" id="loginBtn" onclick="goToLogin()">登录</button>
                 <button class="logout-btn" id="logoutBtn" onclick="logout()" style="display: none;">退出登录</button>
+                <a href="admin.html" id="adminLink" class="admin-link" style="display: none;">管理后台</a>
             </div>
         </div>
     </nav>
@@ -867,6 +884,104 @@
         </div>
     </div>
 
+    <!-- 家教老师详情模态框 -->
+    <div id="tutor-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">家教老师详情</h2>
+                <button class="close-btn" onclick="closeModal('tutor-detail-modal')">×</button>
+            </div>
+            <div id="tutorDetailContent">
+                <!-- 动态显示家教老师详情 -->
+            </div>
+            <div class="modal-footer" style="padding: 15px 0 0; border-top: 1px solid #eee; margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="action-btn" id="tutorFavoriteBtn" onclick="toggleFavorite('tutor')">⭐ 收藏</button>
+                <button class="action-btn" id="tutorConsultBtn" style="background: #28a745; color: white;">💬 咨询</button>
+                <button class="action-btn" id="tutorOrderBtn" style="background: #667eea; color: white;">📝 预约下单</button>
+                <button class="action-btn" id="tutorContactBtn" style="background: #17a2b8; color: white;">📞 联系老师</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 家教需求详情模态框 -->
+    <div id="job-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">家教需求详情</h2>
+                <button class="close-btn" onclick="closeModal('job-detail-modal')">×</button>
+            </div>
+            <div id="jobDetailContent">
+                <!-- 动态显示家教需求详情 -->
+            </div>
+            <div class="modal-footer" style="padding: 15px 0 0; border-top: 1px solid #eee; margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="action-btn" id="jobFavoriteBtn" onclick="toggleFavorite('request')">⭐ 收藏</button>
+                <button class="action-btn" id="jobConsultBtn" style="background: #28a745; color: white;">💬 咨询</button>
+                <button class="action-btn" id="jobApplyBtn" style="background: #667eea; color: white;">📝 我要接单</button>
+                <button class="action-btn" id="jobContactBtn" style="background: #17a2b8; color: white;">📞 联系家长</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 咨询/发送消息模态框 -->
+    <div id="consult-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="consultModalTitle">发送咨询消息</h2>
+                <button class="close-btn" onclick="closeModal('consult-modal')">×</button>
+            </div>
+            <form id="consultForm">
+                <div class="form-group">
+                    <label>收件人</label>
+                    <input type="text" id="consultRecipient" readonly style="background: #f0f0f0;">
+                </div>
+                <div class="form-group">
+                    <label>消息内容</label>
+                    <textarea id="consultContent" rows="5" placeholder="请输入您想咨询的内容..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn" style="width: 100%;">发送消息</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 预约下单模态框 -->
+    <div id="order-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 class="modal-title">预约下单</h2>
+                <button class="close-btn" onclick="closeModal('order-modal')">×</button>
+            </div>
+            <form id="orderForm">
+                <input type="hidden" id="orderTutorId">
+                <input type="hidden" id="orderType">
+                <div class="form-group">
+                    <label>家教老师</label>
+                    <input type="text" id="orderTutorName" readonly style="background: #f0f0f0;">
+                </div>
+                <div class="form-group">
+                    <label>教授科目</label>
+                    <input type="text" id="orderSubjects" readonly style="background: #f0f0f0;">
+                </div>
+                <div class="form-group">
+                    <label>学生姓名</label>
+                    <input type="text" id="orderStudentName" required placeholder="请输入学生姓名">
+                </div>
+                <div class="form-group">
+                    <label>上课地址</label>
+                    <input type="text" id="orderLocation" required placeholder="请输入详细上课地址">
+                </div>
+                <div class="form-group">
+                    <label>期望上课时间</label>
+                    <input type="text" id="orderSchedule" required placeholder="如：每周六下午2-4点">
+                </div>
+                <div class="form-group">
+                    <label>备注说明</label>
+                    <textarea id="orderRemark" rows="3" placeholder="其他需要说明的事项"></textarea>
+                </div>
+                <button type="submit" class="submit-btn" style="width: 100%;">提交预约</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // 全局变量
         let currentUser = null;
@@ -888,6 +1003,28 @@
             updateUserDisplay();
             loadTutorList();
             loadJobList();
+            
+            // 检查URL hash是否需要打开发布模态框
+            const hash = window.location.hash;
+            if (hash === '#publish-tutor') {
+                // 打开发布家教信息模态框
+                if (checkLoginStatus()) {
+                    document.getElementById('tutor-profile').style.display = 'flex';
+                } else {
+                    showLoginRequired();
+                }
+                // 清除hash
+                history.replaceState(null, null, ' ');
+            } else if (hash === '#publish-request') {
+                // 打开发布家教需求模态框
+                if (checkLoginStatus()) {
+                    document.getElementById('parent-demand').style.display = 'flex';
+                } else {
+                    showLoginRequired();
+                }
+                // 清除hash
+                history.replaceState(null, null, ' ');
+            }
         });
 
         // 更新用户显示状态
@@ -897,21 +1034,30 @@
             const logoutBtn = document.getElementById('logoutBtn');
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
+            const adminLink = document.getElementById('adminLink');
 
             if (currentUser && currentUser.id) {
                 // 用户已登录
                 loginBtn.style.display = 'none';
                 logoutBtn.style.display = 'block';
-                userAvatar.style.display = 'block';
+                userAvatar.style.display = 'flex';
                 userName.style.display = 'block';
                 userName.textContent = currentUser.fullName || currentUser.username;
                 userAvatar.textContent = (currentUser.fullName || currentUser.username).charAt(0);
+                
+                // 检查是否是管理员（用户名为admin或is_admin为true）
+                if (currentUser.username === 'admin' || currentUser.is_admin) {
+                    adminLink.style.display = 'inline-block';
+                } else {
+                    adminLink.style.display = 'none';
+                }
             } else {
                 // 用户未登录
                 loginBtn.style.display = 'block';
                 logoutBtn.style.display = 'none';
                 userAvatar.style.display = 'none';
                 userName.style.display = 'none';
+                adminLink.style.display = 'none';
             }
         }
 
@@ -1545,6 +1691,10 @@
             openModal('contact');
         }
 
+        // 当前查看的详情ID
+        let currentDetailId = null;
+        let currentDetailType = null;
+
         // 显示家教老师详情
         function showTutorDetail(tutorId) {
             // 检查登录状态
@@ -1553,8 +1703,45 @@
                 return;
             }
             
-            showMessage(`查看家教老师详情 (ID: ${tutorId})`, 'info');
-            // 这里可以打开详情页面或模态框
+            currentDetailId = tutorId;
+            currentDetailType = 'tutor';
+            
+            // 从已加载的数据中查找
+            const tutor = allTutors.find(t => t.id == tutorId);
+            if (tutor) {
+                document.getElementById('tutorDetailContent').innerHTML = `
+                    <div style="padding: 10px 0;">
+                        <h3 style="color: #333; margin-bottom: 15px;">👨‍🏫 ${tutor.name}</h3>
+                        <div style="display: grid; gap: 12px;">
+                            <div><strong>📚 教授科目：</strong>${tutor.subjects}</div>
+                            <div><strong>🎓 教育背景：</strong>${tutor.education}</div>
+                            <div><strong>💼 教学经验：</strong>${tutor.experience}</div>
+                            <div><strong>💰 课时费用：</strong>${tutor.salary}</div>
+                            <div><strong>📍 授课区域：</strong>${tutor.teaching_areas}</div>
+                            <div><strong>⏰ 可授课时间：</strong>${tutor.schedule || '面议'}</div>
+                            <div><strong>📞 联系电话：</strong>${tutor.contact_phone}</div>
+                            ${tutor.introduction ? `<div><strong>📝 自我介绍：</strong><p style="margin: 5px 0; padding: 10px; background: #f5f5f5; border-radius: 5px;">${tutor.introduction}</p></div>` : ''}
+                        </div>
+                    </div>
+                `;
+                // 设置联系按钮
+                document.getElementById('tutorContactBtn').onclick = function() {
+                    showContactInfo(tutor.name, tutor.contact_phone);
+                };
+                // 设置咨询按钮
+                document.getElementById('tutorConsultBtn').onclick = function() {
+                    openConsultModal('tutor', tutor.name, tutor.user_id);
+                };
+                // 设置下单按钮
+                document.getElementById('tutorOrderBtn').onclick = function() {
+                    openOrderModal(tutor.id, tutor.name, tutor.subjects);
+                };
+                // 检查收藏状态
+                checkFavoriteStatus('tutor', tutorId);
+                document.getElementById('tutor-detail-modal').style.display = 'flex';
+            } else {
+                showMessage('无法加载家教老师信息', 'error');
+            }
         }
 
         // 显示家教需求详情
@@ -1565,8 +1752,253 @@
                 return;
             }
             
-            showMessage(`查看家教需求详情 (ID: ${jobId})`, 'info');
-            // 这里可以打开详情页面或模态框
+            currentDetailId = jobId;
+            currentDetailType = 'request';
+            
+            // 从已加载的数据中查找
+            const job = allJobs.find(j => j.id == jobId);
+            if (job) {
+                document.getElementById('jobDetailContent').innerHTML = `
+                    <div style="padding: 10px 0;">
+                        <h3 style="color: #333; margin-bottom: 15px;">👦 ${job.student_name} (${job.grade})</h3>
+                        <div style="display: grid; gap: 12px;">
+                            <div><strong>📚 辅导科目：</strong>${job.subjects}</div>
+                            <div><strong>📍 上课地点：</strong>${job.location}</div>
+                            <div><strong>⏰ 上课时间：</strong>${job.schedule || '面议'}</div>
+                            <div><strong>💰 课时费用：</strong>${job.salary}</div>
+                            <div><strong>👤 发布者：</strong>${job.parent_name}</div>
+                            <div><strong>📞 联系电话：</strong>${job.contact_phone}</div>
+                            ${job.requirements ? `<div><strong>📝 具体要求：</strong><p style="margin: 5px 0; padding: 10px; background: #f5f5f5; border-radius: 5px;">${job.requirements}</p></div>` : ''}
+                        </div>
+                    </div>
+                `;
+                // 设置联系按钮
+                document.getElementById('jobContactBtn').onclick = function() {
+                    showContactInfo(job.parent_name, job.contact_phone);
+                };
+                // 设置咨询按钮
+                document.getElementById('jobConsultBtn').onclick = function() {
+                    openConsultModal('request', job.parent_name, job.user_id);
+                };
+                // 设置接单按钮
+                document.getElementById('jobApplyBtn').onclick = function() {
+                    applyForJob(job.id, job.user_id);
+                };
+                // 检查收藏状态
+                checkFavoriteStatus('request', jobId);
+                document.getElementById('job-detail-modal').style.display = 'flex';
+            } else {
+                showMessage('无法加载家教需求信息', 'error');
+            }
+        }
+
+        // 检查收藏状态
+        function checkFavoriteStatus(type, itemId) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (!currentUser.id) return;
+            
+            fetch(`api_favorites.php?action=check&user_id=${currentUser.id}&type=${type}&item_id=${itemId}`)
+                .then(r => r.json())
+                .then(data => {
+                    const btnId = type === 'tutor' ? 'tutorFavoriteBtn' : 'jobFavoriteBtn';
+                    const btn = document.getElementById(btnId);
+                    if (data.success && data.is_favorited) {
+                        btn.innerHTML = '💛 已收藏';
+                        btn.style.background = '#ffd700';
+                        btn.style.color = '#333';
+                    } else {
+                        btn.innerHTML = '⭐ 收藏';
+                        btn.style.background = '';
+                        btn.style.color = '';
+                    }
+                })
+                .catch(() => {});
+        }
+
+        // 切换收藏状态
+        function toggleFavorite(type) {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (!currentUser.id) {
+                showLoginRequired();
+                return;
+            }
+            
+            const itemId = currentDetailId;
+            const btnId = type === 'tutor' ? 'tutorFavoriteBtn' : 'jobFavoriteBtn';
+            const btn = document.getElementById(btnId);
+            const isFavorited = btn.innerHTML.includes('已收藏');
+            
+            if (isFavorited) {
+                // 取消收藏
+                fetch('api_favorites.php?action=remove_by_item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUser.id, type: type, item_id: itemId })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        btn.innerHTML = '⭐ 收藏';
+                        btn.style.background = '';
+                        btn.style.color = '';
+                        showMessage('已取消收藏', 'success');
+                    } else {
+                        showMessage(data.message || '操作失败', 'error');
+                    }
+                });
+            } else {
+                // 添加收藏
+                fetch('api_favorites.php?action=add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUser.id, type: type, item_id: itemId })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        btn.innerHTML = '💛 已收藏';
+                        btn.style.background = '#ffd700';
+                        btn.style.color = '#333';
+                        showMessage('收藏成功', 'success');
+                    } else {
+                        showMessage(data.message || '收藏失败', 'error');
+                    }
+                });
+            }
+        }
+
+        // 当前咨询目标
+        let currentConsultTarget = null;
+
+        // 打开咨询模态框
+        function openConsultModal(type, targetName, targetUserId) {
+            if (!checkLoginStatus()) {
+                showLoginRequired();
+                return;
+            }
+            currentConsultTarget = { type, targetUserId };
+            document.getElementById('consultModalTitle').textContent = type === 'tutor' ? '咨询家教老师' : '咨询家长';
+            document.getElementById('consultRecipient').value = targetName;
+            document.getElementById('consultContent').value = '';
+            document.getElementById('consult-modal').style.display = 'flex';
+        }
+
+        // 发送咨询消息
+        document.getElementById('consultForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const content = document.getElementById('consultContent').value.trim();
+            
+            if (!content) {
+                showMessage('请输入消息内容', 'error');
+                return;
+            }
+            
+            fetch('api_messages.php?action=send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sender_id: currentUser.id,
+                    receiver_id: currentConsultTarget.targetUserId,
+                    subject: currentConsultTarget.type === 'tutor' ? '家教咨询' : '需求咨询',
+                    content: content,
+                    related_type: currentConsultTarget.type,
+                    related_id: currentDetailId
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('消息发送成功！对方会在消息中心收到您的咨询', 'success');
+                    closeModal('consult-modal');
+                } else {
+                    showMessage(data.message || '发送失败', 'error');
+                }
+            })
+            .catch(() => showMessage('发送失败，请稍后重试', 'error'));
+        });
+
+        // 打开下单模态框
+        function openOrderModal(tutorId, tutorName, subjects) {
+            if (!checkLoginStatus()) {
+                showLoginRequired();
+                return;
+            }
+            document.getElementById('orderTutorId').value = tutorId;
+            document.getElementById('orderTutorName').value = tutorName;
+            document.getElementById('orderSubjects').value = subjects;
+            document.getElementById('orderStudentName').value = '';
+            document.getElementById('orderLocation').value = '';
+            document.getElementById('orderSchedule').value = '';
+            document.getElementById('orderRemark').value = '';
+            document.getElementById('order-modal').style.display = 'flex';
+        }
+
+        // 提交预约订单
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            const orderData = {
+                parent_id: currentUser.id,
+                tutor_id: document.getElementById('orderTutorId').value,
+                student_name: document.getElementById('orderStudentName').value,
+                subjects: document.getElementById('orderSubjects').value,
+                location: document.getElementById('orderLocation').value,
+                schedule: document.getElementById('orderSchedule').value,
+                remark: document.getElementById('orderRemark').value
+            };
+            
+            fetch('api_orders.php?action=create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('预约订单提交成功！请等待老师确认', 'success');
+                    closeModal('order-modal');
+                    closeModal('tutor-detail-modal');
+                } else {
+                    showMessage(data.message || '提交失败', 'error');
+                }
+            })
+            .catch(() => showMessage('提交失败，请稍后重试', 'error'));
+        });
+
+        // 家教接单（应聘）
+        function applyForJob(requestId, parentUserId) {
+            if (!checkLoginStatus()) {
+                showLoginRequired();
+                return;
+            }
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            // 发送接单申请消息
+            fetch('api_messages.php?action=send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sender_id: currentUser.id,
+                    receiver_id: parentUserId,
+                    subject: '家教老师应聘申请',
+                    content: `您好！我对您发布的家教需求很感兴趣，希望能成为您孩子的家教老师。请查看我的详细信息并与我联系。`,
+                    related_type: 'request',
+                    related_id: requestId
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('应聘申请已发送！请等待家长回复', 'success');
+                    closeModal('job-detail-modal');
+                } else {
+                    showMessage(data.message || '申请失败', 'error');
+                }
+            })
+            .catch(() => showMessage('申请失败，请稍后重试', 'error'));
         }
 
         // 检查用户是否已登录

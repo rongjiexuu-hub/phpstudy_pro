@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的订单 - 学缘家教通</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .navbar { background: rgba(255,255,255,0.95); padding: 1rem 0; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .nav-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #667eea; text-decoration: none; }
+        .nav-links { display: flex; list-style: none; gap: 2rem; }
+        .nav-links a { text-decoration: none; color: #333; font-weight: 500; }
+        .nav-links a:hover { color: #667eea; }
+        
+        .main-content { margin-top: 80px; padding: 2rem 20px; max-width: 1000px; margin-left: auto; margin-right: auto; }
+        
+        .page-header { background: white; border-radius: 15px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .page-title { font-size: 1.5rem; color: #333; margin-bottom: 1rem; }
+        
+        .tabs { display: flex; gap: 10px; flex-wrap: wrap; }
+        .tab { padding: 10px 20px; background: #f0f0f0; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .tab.active { background: #667eea; color: white; }
+        .tab:hover:not(.active) { background: #e0e0e0; }
+        
+        .role-switch { display: flex; gap: 10px; margin-bottom: 1rem; }
+        .role-btn { padding: 8px 16px; border: 2px solid #667eea; background: white; color: #667eea; border-radius: 6px; cursor: pointer; }
+        .role-btn.active { background: #667eea; color: white; }
+        
+        .order-list { display: flex; flex-direction: column; gap: 1rem; }
+        .order-card { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; }
+        .order-no { font-weight: 600; color: #333; }
+        .order-status { padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-accepted { background: #d4edda; color: #155724; }
+        .status-ongoing { background: #cce5ff; color: #004085; }
+        .status-completed { background: #d1ecf1; color: #0c5460; }
+        .status-cancelled, .status-rejected { background: #f8d7da; color: #721c24; }
+        
+        .order-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+        .info-item { }
+        .info-label { color: #888; font-size: 0.85rem; margin-bottom: 5px; }
+        .info-value { color: #333; font-weight: 500; }
+        
+        .order-actions { display: flex; gap: 10px; padding-top: 1rem; border-top: 1px solid #eee; }
+        
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn:hover { transform: translateY(-2px); }
+        
+        .empty-state { background: white; border-radius: 15px; padding: 4rem 2rem; text-align: center; color: #666; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .empty-state .icon { font-size: 4rem; margin-bottom: 1rem; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; }
+        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 15px; padding: 2rem; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-title { font-size: 1.25rem; font-weight: 600; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 5px; color: #555; font-weight: 500; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        
+        .toast { position: fixed; top: 100px; right: 20px; padding: 15px 25px; border-radius: 8px; color: white; z-index: 3000; animation: slideIn 0.3s ease; }
+        .toast.success { background: #28a745; }
+        .toast.error { background: #dc3545; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .order-info { grid-template-columns: 1fr; }
+            .tabs { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">学缘家教通</a>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="profile.html">个人中心</a></li>
+                <li><a href="messages.html">我的消息</a></li>
+                <li><a href="orders.html" style="color: #667eea;">我的订单</a></li>
+            </ul>
+            <button class="btn btn-secondary" onclick="logout()">退出</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">📋 我的订单</h1>
+            
+            <div class="role-switch">
+                <button class="role-btn active" data-role="parent" onclick="switchRole('parent')">作为家长</button>
+                <button class="role-btn" data-role="tutor" onclick="switchRole('tutor')">作为家教</button>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" data-status="">全部</div>
+                <div class="tab" data-status="pending">待确认</div>
+                <div class="tab" data-status="accepted">已接受</div>
+                <div class="tab" data-status="ongoing">进行中</div>
+                <div class="tab" data-status="completed">已完成</div>
+                <div class="tab" data-status="cancelled">已取消</div>
+            </div>
+        </div>
+        
+        <div class="order-list" id="orderList">
+            <div class="empty-state">
+                <div class="icon">📋</div>
+                <p>加载中...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- 订单详情模态框 -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">订单详情</h3>
+                <button class="close-btn" onclick="closeModal('orderModal')">×</button>
+            </div>
+            <div id="orderDetail"></div>
+        </div>
+    </div>
+
+    <!-- 取消原因模态框 -->
+    <div id="cancelModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">取消订单</h3>
+                <button class="close-btn" onclick="closeModal('cancelModal')">×</button>
+            </div>
+            <form id="cancelForm">
+                <input type="hidden" id="cancelOrderId">
+                <div class="form-group">
+                    <label>取消原因</label>
+                    <textarea id="cancelReason" placeholder="请输入取消原因（选填）"></textarea>
+                </div>
+                <button type="submit" class="btn btn-danger" style="width: 100%;">确认取消</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 评价模态框 -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">评价家教老师</h3>
+                <button class="close-btn" onclick="closeModal('reviewModal')">×</button>
+            </div>
+            <form id="reviewForm">
+                <input type="hidden" id="reviewOrderId">
+                <input type="hidden" id="reviewTutorId">
+                <div class="form-group">
+                    <label>评分</label>
+                    <div class="rating-stars" id="ratingStars">
+                        <span class="star" data-value="1">⭐</span>
+                        <span class="star" data-value="2">⭐</span>
+                        <span class="star" data-value="3">⭐</span>
+                        <span class="star" data-value="4">⭐</span>
+                        <span class="star" data-value="5">⭐</span>
+                    </div>
+                    <input type="hidden" id="reviewRating" value="5">
+                </div>
+                <div class="form-group">
+                    <label>评价内容</label>
+                    <textarea id="reviewContent" placeholder="请分享您的家教体验..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="reviewAnonymous"> 匿名评价</label>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">提交评价</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let currentRole = 'parent';
+        let currentStatus = '';
+        let selectedRating = 5;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (!currentUser || !currentUser.id) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            loadOrders();
+            
+            // 状态切换
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentStatus = this.dataset.status;
+                    loadOrders();
+                });
+            });
+            
+            // 评分星星点击
+            document.querySelectorAll('.star').forEach(star => {
+                star.addEventListener('click', function() {
+                    selectedRating = parseInt(this.dataset.value);
+                    document.getElementById('reviewRating').value = selectedRating;
+                    updateStars();
+                });
+            });
+        });
+
+        function toast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function switchRole(role) {
+            currentRole = role;
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.role === role);
+            });
+            loadOrders();
+        }
+
+        function loadOrders() {
+            fetch(`api_orders.php?action=get_list&user_id=${currentUser.id}&role=${currentRole}&status=${currentStatus}`)
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('orderList');
+                    if (data.success && data.data && data.data.length > 0) {
+                        container.innerHTML = data.data.map(o => renderOrderCard(o)).join('');
+                    } else {
+                        container.innerHTML = `<div class="empty-state"><div class="icon">📋</div><p>暂无${currentStatus ? getStatusText(currentStatus) : ''}订单</p></div>`;
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('orderList').innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>暂无订单</p></div>';
+                });
+        }
+
+        function getStatusText(status) {
+            const map = {pending:'待确认',accepted:'已接受',rejected:'已拒绝',ongoing:'进行中',completed:'已完成',cancelled:'已取消'};
+            return map[status] || status;
+        }
+
+        function renderOrderCard(order) {
+            const isParent = currentRole === 'parent';
+            const canAccept = !isParent && order.status === 'pending';
+            const canCancel = order.status === 'pending' || order.status === 'accepted';
+            const canComplete = order.status === 'ongoing';
+            const canReview = isParent && order.status === 'completed';
+            
+            return `
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-no">订单号：${order.order_no}</span>
+                        <span class="order-status status-${order.status}">${getStatusText(order.status)}</span>
+                    </div>
+                    <div class="order-info">
+                        <div class="info-item">
+                            <div class="info-label">学生姓名</div>
+                            <div class="info-value">${order.student_name || '-'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">科目</div>
+                            <div class="info-value">${order.subjects || '-'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">${isParent ? '家教老师' : '家长'}</div>
+                            <div class="info-value">${isParent ? (order.tutor_name || '-') : (order.parent_name || '-')}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">上课地点</div>
+                            <div class="info-value">${order.location || '-'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">课时费</div>
+                            <div class="info-value">¥${order.price_per_hour || 0}/小时</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">创建时间</div>
+                            <div class="info-value">${order.created_at}</div>
+                        </div>
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn btn-secondary" onclick="viewOrderDetail(${order.id})">查看详情</button>
+                        ${canAccept ? `
+                            <button class="btn btn-success" onclick="updateStatus(${order.id}, 'accepted')">接受</button>
+                            <button class="btn btn-danger" onclick="updateStatus(${order.id}, 'rejected')">拒绝</button>
+                        ` : ''}
+                        ${canCancel ? `<button class="btn btn-warning" onclick="openCancelModal(${order.id})">取消订单</button>` : ''}
+                        ${canComplete ? `<button class="btn btn-success" onclick="completeOrder(${order.id})">确认完成</button>` : ''}
+                        ${canReview ? `<button class="btn btn-primary" onclick="openReviewModal(${order.id}, ${order.tutor_id})">评价</button>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function viewOrderDetail(orderId) {
+            fetch(`api_orders.php?action=get_detail&order_id=${orderId}&user_id=${currentUser.id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const o = data.data;
+                        document.getElementById('orderDetail').innerHTML = `
+                            <div style="line-height: 2;">
+                                <p><strong>订单号：</strong>${o.order_no}</p>
+                                <p><strong>状态：</strong>${getStatusText(o.status)}</p>
+                                <p><strong>学生：</strong>${o.student_name || '-'}</p>
+                                <p><strong>科目：</strong>${o.subjects || '-'}</p>
+                                <p><strong>上课时间：</strong>${o.schedule || '-'}</p>
+                                <p><strong>上课地点：</strong>${o.location || '-'}</p>
+                                <p><strong>家教老师：</strong>${o.tutor_name || '-'}</p>
+                                <p><strong>课时费：</strong>¥${o.price_per_hour || 0}/小时</p>
+                                <p><strong>总课时：</strong>${o.total_hours || 0}小时</p>
+                                <p><strong>总金额：</strong>¥${o.total_amount || 0}</p>
+                                <p><strong>创建时间：</strong>${o.created_at}</p>
+                                ${o.notes ? `<p><strong>备注：</strong>${o.notes}</p>` : ''}
+                                ${o.cancel_reason ? `<p><strong>取消原因：</strong>${o.cancel_reason}</p>` : ''}
+                            </div>
+                        `;
+                        document.getElementById('orderModal').style.display = 'block';
+                    }
+                });
+        }
+
+        function updateStatus(orderId, status) {
+            const action = status === 'accepted' ? '接受' : '拒绝';
+            if (!confirm(`确定要${action}这个订单吗？`)) return;
+            
+            fetch('api_orders.php?action=update_status', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    order_id: orderId,
+                    user_id: currentUser.id,
+                    status: status
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                toast(data.message, data.success ? 'success' : 'error');
+                if (data.success) loadOrders();
+            });
+        }
+
+        function openCancelModal(orderId) {
+            document.getElementById('cancelOrderId').value = orderId;
+            document.getElementById('cancelModal').style.display = 'block';
+        }
+
+        document.getElementById('cancelForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const orderId = document.getElementById('cancelOrderId').value;
+            const reason = document.getElementById('cancelReason').value;
+            
+            fetch('api_orders.php?action=cancel', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    order_id: orderId,
+                    user_id: currentUser.id,
+                    reason: reason
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                toast(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    closeModal('cancelModal');
+                    loadOrders();
+                }
+            });
+        });
+
+        function completeOrder(orderId) {
+            const hours = prompt('请输入实际上课课时数：', '10');
+            if (!hours) return;
+            
+            fetch('api_orders.php?action=complete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    order_id: orderId,
+                    user_id: currentUser.id,
+                    total_hours: parseFloat(hours)
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                toast(data.message, data.success ? 'success' : 'error');
+                if (data.success) loadOrders();
+            });
+        }
+
+        function openReviewModal(orderId, tutorId) {
+            document.getElementById('reviewOrderId').value = orderId;
+            document.getElementById('reviewTutorId').value = tutorId;
+            selectedRating = 5;
+            updateStars();
+            document.getElementById('reviewModal').style.display = 'block';
+        }
+
+        function updateStars() {
+            document.querySelectorAll('.star').forEach((star, index) => {
+                star.style.opacity = index < selectedRating ? 1 : 0.3;
+            });
+        }
+
+        document.getElementById('reviewForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            fetch('api_reviews.php?action=add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    reviewer_id: currentUser.id,
+                    tutor_id: document.getElementById('reviewTutorId').value,
+                    order_id: document.getElementById('reviewOrderId').value,
+                    rating: selectedRating,
+                    content: document.getElementById('reviewContent').value,
+                    is_anonymous: document.getElementById('reviewAnonymous').checked ? 1 : 0
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                toast(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    closeModal('reviewModal');
+                    document.getElementById('reviewForm').reset();
+                }
+            });
+        });
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        window.onclick = function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -107,13 +107,8 @@ try {
                     {$where_clause}";
     
     $count_stmt = $conn->prepare($count_query);
-    if (!empty($params)) {
-        // 移除limit和offset参数
-        $count_params = array_slice($params, 0, -2);
-        if (!empty($count_params)) {
-            $count_types = substr($types, 0, -2);
-            $count_stmt->bind_param($count_types, ...$count_params);
-        }
+    if (!empty($params) && !empty($types)) {
+        $count_stmt->bind_param($types, ...$params);
     }
     $count_stmt->execute();
     $total = $count_stmt->get_result()->fetch_assoc()['total'];

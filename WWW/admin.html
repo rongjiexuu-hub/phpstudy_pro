@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 学缘家教通</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: #f5f6fa; min-height: 100vh; }
+        
+        .admin-container { display: flex; min-height: 100vh; }
+        
+        /* 侧边栏 */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .sidebar-header { padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header h1 { font-size: 1.5rem; }
+        .sidebar-header p { font-size: 0.85rem; opacity: 0.8; margin-top: 5px; }
+        
+        .nav-menu { list-style: none; padding: 20px 0; }
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); }
+        .nav-item .badge {
+            background: #dc3545;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-left: auto;
+        }
+        
+        /* 主内容区 */
+        .main-content { margin-left: 250px; flex: 1; padding: 20px; }
+        
+        /* 头部 */
+        .header {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .header h2 { color: #333; font-size: 1.5rem; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .admin-info { display: flex; align-items: center; gap: 10px; }
+        .admin-avatar {
+            width: 40px; height: 40px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .stat-card .icon {
+            width: 50px; height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        .stat-card .icon.blue { background: #e3f2fd; }
+        .stat-card .icon.green { background: #e8f5e9; }
+        .stat-card .icon.orange { background: #fff3e0; }
+        .stat-card .icon.purple { background: #f3e5f5; }
+        .stat-card .value { font-size: 2rem; font-weight: bold; color: #333; }
+        .stat-card .label { color: #666; font-size: 0.9rem; margin-top: 5px; }
+        
+        /* 内容面板 */
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .panel-title { font-size: 1.25rem; color: #333; }
+        
+        /* 表格 */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; color: #555; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        
+        /* 状态标签 */
+        .status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+        .status-active { background: #d4edda; color: #155724; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-inactive { background: #f8d7da; color: #721c24; }
+        .status-completed { background: #cce5ff; color: #004085; }
+        
+        /* 按钮 */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-sm { padding: 5px 10px; font-size: 0.8rem; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        
+        /* 搜索框 */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        .search-box input:focus { outline: none; border-color: #667eea; }
+        
+        /* 标签页 */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab.active { background: #667eea; color: white; }
+        .tab:hover:not(.active) { background: #e0e0e0; }
+        
+        /* 页面区域 */
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+        
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+        .pagination button {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .pagination button.active { background: #667eea; color: white; border-color: #667eea; }
+        .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title { font-size: 1.25rem; font-weight: 600; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #555; font-weight: 500; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        
+        /* 消息提示 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.success { background: #28a745; }
+        .toast.error { background: #dc3545; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar-header h1, .sidebar-header p, .nav-item span { display: none; }
+            .main-content { margin-left: 60px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>学缘家教通</h1>
+                <p>管理后台</p>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="dashboard">📊 <span>仪表盘</span></li>
+                <li class="nav-item" data-page="users">👥 <span>用户管理</span></li>
+                <li class="nav-item" data-page="tutors">🎓 <span>家教管理</span></li>
+                <li class="nav-item" data-page="requests">📝 <span>需求管理</span></li>
+                <li class="nav-item" data-page="orders">📋 <span>订单管理</span></li>
+                <li class="nav-item" data-page="verifications">✅ <span>认证审核</span> <span class="badge" id="verifyBadge">0</span></li>
+                <li class="nav-item" data-page="reviews">⭐ <span>评价管理</span></li>
+                <li class="nav-item" data-page="notifications">📢 <span>系统通知</span></li>
+            </ul>
+        </aside>
+
+        <!-- 主内容 -->
+        <main class="main-content">
+            <div class="header">
+                <h2 id="pageTitle">仪表盘</h2>
+                <div class="header-actions">
+                    <a href="index.html" class="btn btn-secondary">返回前台</a>
+                    <div class="admin-info">
+                        <span id="adminName">管理员</span>
+                        <div class="admin-avatar" id="adminAvatar">A</div>
+                    </div>
+                    <button class="btn btn-danger" onclick="logout()">退出</button>
+                </div>
+            </div>
+
+            <!-- 仪表盘 -->
+            <section id="page-dashboard" class="page-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="icon blue">👥</div>
+                        <div class="value" id="statUsers">0</div>
+                        <div class="label">总用户数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon green">🎓</div>
+                        <div class="value" id="statTutors">0</div>
+                        <div class="label">家教信息</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon orange">📝</div>
+                        <div class="value" id="statRequests">0</div>
+                        <div class="label">家教需求</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon purple">📋</div>
+                        <div class="value" id="statOrders">0</div>
+                        <div class="label">总订单数</div>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="icon green">✅</div>
+                        <div class="value" id="statCompleted">0</div>
+                        <div class="label">完成订单</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon orange">⏳</div>
+                        <div class="value" id="statPending">0</div>
+                        <div class="label">待处理订单</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon purple">🔍</div>
+                        <div class="value" id="statVerifications">0</div>
+                        <div class="label">待审核认证</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon blue">💰</div>
+                        <div class="value" id="statRevenue">¥0</div>
+                        <div class="label">总交易额</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 用户管理 -->
+            <section id="page-users" class="page-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">用户列表</h3>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" id="userSearch" placeholder="搜索用户名或邮箱...">
+                        <button class="btn btn-primary" onclick="searchUsers()">搜索</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>用户名</th>
+                                    <th>邮箱</th>
+                                    <th>类型</th>
+                                    <th>认证</th>
+                                    <th>状态</th>
+                                    <th>注册时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 家教管理 -->
+            <section id="page-tutors" class="page-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">家教信息列表</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>姓名</th>
+                                    <th>科目</th>
+                                    <th>学历</th>
+                                    <th>地区</th>
+                                    <th>薪资</th>
+                                    <th>认证</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tutorsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 需求管理 -->
+            <section id="page-requests" class="page-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">家教需求列表</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>学生</th>
+                                    <th>年级</th>
+                                    <th>科目</th>
+                                    <th>地点</th>
+                                    <th>薪资</th>
+                                    <th>发布者</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requestsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 订单管理 -->
+            <section id="page-orders" class="page-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">订单列表</h3>
+                    </div>
+                    <div class="tabs">
+                        <div class="tab active" data-status="">全部</div>
+                        <div class="tab" data-status="pending">待确认</div>
+                        <div class="tab" data-status="ongoing">进行中</div>
+                        <div class="tab" data-status="completed">已完成</div>
+                        <div class="tab" data-status="cancelled">已取消</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>订单号</th>
+                                    <th>家长</th>
+                                    <th>家教</th>
+                                    <th>科目</th>
+                                    <th>金额</th>
+                                    <th>状态</th>
+                                    <th>创建时间</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 认证审核 -->
+            <section id="page-verifications" class="page-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">待审核认证</h3>
+                    </div>
+                    <div class="tabs" id="verifyTabs">
+                        <div class="tab active" data-status="pending">待审核</div>
+                        <div class="tab" data-status="approved">已通过</div>
+                        <div class="tab" data-status="rejected">已拒绝</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>用户</th>
+                                    <th>真实姓名</th>
+                                    <th>家教信息</th>
+                                    <th>科目</th>
+                                    <th>申请时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="verificationsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 评价管理 -->
+            <section id="page-reviews" class="page-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">评价列表</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>评价者</th>
+                                    <th>家教</th>
+                                    <th>评分</th>
+                                    <th>内容</th>
+                                    <th>时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reviewsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 系统通知 -->
+            <section id="page-notifications" class="page-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">发送系统通知</h3>
+                    </div>
+                    <form id="notificationForm">
+                        <div class="form-group">
+                            <label>通知标题</label>
+                            <input type="text" id="notifyTitle" required placeholder="请输入通知标题">
+                        </div>
+                        <div class="form-group">
+                            <label>通知内容</label>
+                            <textarea id="notifyContent" required placeholder="请输入通知内容"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>发送对象</label>
+                            <select id="notifyTarget">
+                                <option value="all">所有用户</option>
+                                <option value="tutors">所有家教</option>
+                                <option value="parents">所有家长</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">发送通知</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 审核模态框 -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">审核认证申请</h3>
+                <button class="close-btn" onclick="closeModal('reviewModal')">×</button>
+            </div>
+            <form id="reviewForm">
+                <input type="hidden" id="reviewRequestId">
+                <div class="form-group">
+                    <label>审核结果</label>
+                    <select id="reviewStatus" required>
+                        <option value="approved">通过</option>
+                        <option value="rejected">拒绝</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>审核备注</label>
+                    <textarea id="reviewMessage" placeholder="请输入审核备注（拒绝时必填）"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">提交审核</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentAdmin = null;
+        let currentVerifyStatus = 'pending';
+        let currentOrderStatus = '';
+
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', function() {
+            currentAdmin = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            if (!currentAdmin || !currentAdmin.id) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 验证管理员权限（简单验证，实际应从服务器验证）
+            document.getElementById('adminName').textContent = currentAdmin.username || '管理员';
+            document.getElementById('adminAvatar').textContent = (currentAdmin.username || 'A')[0].toUpperCase();
+            
+            loadDashboard();
+            
+            // 导航点击
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const page = this.dataset.page;
+                    switchPage(page);
+                });
+            });
+            
+            // 订单状态切换
+            document.querySelectorAll('#page-orders .tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('#page-orders .tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentOrderStatus = this.dataset.status;
+                    loadOrders();
+                });
+            });
+            
+            // 认证状态切换
+            document.querySelectorAll('#verifyTabs .tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('#verifyTabs .tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentVerifyStatus = this.dataset.status;
+                    loadVerifications();
+                });
+            });
+        });
+
+        function toast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function switchPage(page) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+            
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            
+            const titles = {
+                dashboard: '仪表盘', users: '用户管理', tutors: '家教管理',
+                requests: '需求管理', orders: '订单管理', verifications: '认证审核',
+                reviews: '评价管理', notifications: '系统通知'
+            };
+            document.getElementById('pageTitle').textContent = titles[page];
+            
+            // 加载数据
+            switch(page) {
+                case 'dashboard': loadDashboard(); break;
+                case 'users': loadUsers(); break;
+                case 'tutors': loadTutors(); break;
+                case 'requests': loadRequests(); break;
+                case 'orders': loadOrders(); break;
+                case 'verifications': loadVerifications(); break;
+                case 'reviews': loadReviews(); break;
+            }
+        }
+
+        // 加载仪表盘
+        function loadDashboard() {
+            fetch(`api_admin.php?action=get_dashboard&admin_id=${currentAdmin.id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const s = data.data;
+                        document.getElementById('statUsers').textContent = s.total_users || 0;
+                        document.getElementById('statTutors').textContent = s.active_tutors || 0;
+                        document.getElementById('statRequests').textContent = s.active_requests || 0;
+                        document.getElementById('statOrders').textContent = s.total_orders || 0;
+                        document.getElementById('statCompleted').textContent = s.completed_orders || 0;
+                        document.getElementById('statPending').textContent = s.pending_orders || 0;
+                        document.getElementById('statVerifications').textContent = s.pending_verifications || 0;
+                        document.getElementById('verifyBadge').textContent = s.pending_verifications || 0;
+                        document.getElementById('statRevenue').textContent = '¥' + (s.total_revenue || 0);
+                    }
+                });
+        }
+
+        // 加载用户
+        function loadUsers() {
+            const search = document.getElementById('userSearch')?.value || '';
+            fetch(`api_admin.php?action=get_users&admin_id=${currentAdmin.id}&search=${search}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const tbody = document.getElementById('usersTable');
+                        tbody.innerHTML = data.data.map(u => `
+                            <tr>
+                                <td>${u.id}</td>
+                                <td>${u.username}</td>
+                                <td>${u.email}</td>
+                                <td>${u.user_type || 'both'}</td>
+                                <td>${u.is_verified ? '✅' : '❌'}</td>
+                                <td><span class="status status-${u.status}">${u.status}</span></td>
+                                <td>${u.created_at}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-${u.status === 'active' ? 'warning' : 'success'}" onclick="toggleUserStatus(${u.id}, '${u.status}')">
+                                        ${u.status === 'active' ? '禁用' : '启用'}
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                });
+        }
+        function searchUsers() { loadUsers(); }
+
+        function toggleUserStatus(userId, currentStatus) {
+            const newStatus = currentStatus === 'active' ? 'banned' : 'active';
+            fetch('api_admin.php?action=update_user', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ admin_id: currentAdmin.id, user_id: userId, status: newStatus })
+            }).then(r => r.json()).then(data => {
+                toast(data.message, data.success ? 'success' : 'error');
+                if (data.success) loadUsers();
+            });
+        }
+
+        // 加载家教
+        function loadTutors() {
+            fetch(`api_admin.php?action=get_tutors&admin_id=${currentAdmin.id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const tbody = document.getElementById('tutorsTable');
+                        tbody.innerHTML = data.data.map(t => `
+                            <tr>
+                                <td>${t.id}</td>
+                                <td>${t.name}</td>
+                                <td>${t.subjects}</td>
+                                <td>${t.education}</td>
+                                <td>${t.teaching_areas}</td>
+                                <td>${t.salary}</td>
+                                <td>${t.is_verified ? '✅' : '❌'}</td>
+                                <td><span class="status status-${t.status}">${t.status}</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-${t.status === 'active' ? 'warning' : 'success'}" onclick="toggleTutorStatus(${t.id}, '${t.status}')">
+                                        ${t.status === 'active' ? '下架' : '上架'}
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteTutor(${t.id})">删除</button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                });
+        }
+
+        function toggleTutorStatus(id, status) {
+            const newStatus = status === 'active' ? 'inactive' : 'active';
+            fetch('api_admin.php?action=update_tutor', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ admin_id: currentAdmin.id, tutor_id: id, status: newStatus })
+            }).then(r => r.json()).then(data => {
+                toast(data.message, data.success ? 'success' : 'error');
+                if (data.success) loadTutors();
+            });
+        }
+
+        function deleteTutor(id) {
+            if (!confirm('确定要删除吗？')) return;
+            fetch('api_admin.php?action=delete_tutor', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ admin_id: currentAdmin.id, tutor_id: id })
+            }).then(r => r.json()).then(data => {
+                toast(data.message, data.success ? 'success' : 'error');
+                if (data.success) loadTutors();
+            });
+        }
+
+        // 加载需求
+        function loadRequests() {
+            fetch(`api_admin.php?action=get_requests&admin_id=${currentAdmin.id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const tbody = document.getElementById('requestsTable');
+                        tbody.innerHTML = data.data.map(r => `
+                            <tr>
+                                <td>${r.id}</td>
+                                <td>${r.student_name}</td>
+                                <td>${r.grade}</td>
+                                <td>${r.subjects}</td>
+                                <td>${r.location}</td>
+                                <td>${r.salary}</td>
+                                <td>${r.username || '-'}</td>
+                                <td><span class="status status-${r.status}">${r.status}</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteRequest(${r.id})">删除</button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                });
+        }
+
+        function deleteRequest(id) {
+            if (!confirm('确定要删除吗？')) return;
+            fetch('api_admin.php?action=delete_request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ admin_id: currentAdmin.id, request_id: id })
+            }).then(r => r.json()).then(data => {
+                toast(data.message, data.success ? 'success' : 'error');
+                if (data.success) loadRequests();
+            });
+        }
+
+        // 加载订单
+        function loadOrders() {
+            fetch(`api_admin.php?action=get_orders&admin_id=${currentAdmin.id}&status=${currentOrderStatus}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const statusText = {pending:'待确认',accepted:'已接受',ongoing:'进行中',completed:'已完成',cancelled:'已取消',rejected:'已拒绝'};
+                        const tbody = document.getElementById('ordersTable');
+                        tbody.innerHTML = data.data.map(o => `
+                            <tr>
+                                <td>${o.order_no}</td>
+                                <td>${o.parent_name || '-'}</td>
+                                <td>${o.tutor_name || '-'}</td>
+                                <td>${o.subjects}</td>
+                                <td>¥${o.total_amount || 0}</td>
+                                <td><span class="status status-${o.status}">${statusText[o.status] || o.status}</span></td>
+                                <td>${o.created_at}</td>
+                            </tr>
+                        `).join('');
+                    }
+                });
+        }
+
+        // 加载认证
+        function loadVerifications() {
+            fetch(`api_admin.php?action=get_verifications&admin_id=${currentAdmin.id}&status=${currentVerifyStatus}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const tbody = document.getElementById('verificationsTable');
+                        tbody.innerHTML = data.data.map(v => `
+                            <tr>
+                                <td>${v.id}</td>
+                                <td>${v.username}</td>
+                                <td>${v.real_name}</td>
+                                <td>${v.tutor_name || '-'}</td>
+                                <td>${v.subjects || '-'}</td>
+                                <td>${v.created_at}</td>
+                                <td>
+                                    ${currentVerifyStatus === 'pending' ? `
+                                        <button class="btn btn-sm btn-success" onclick="openReviewModal(${v.id})">审核</button>
+                                    ` : `<span class="status status-${v.status}">${v.status === 'approved' ? '已通过' : '已拒绝'}</span>`}
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                });
+        }
+
+        function openReviewModal(id) {
+            document.getElementById('reviewRequestId').value = id;
+            document.getElementById('reviewModal').style.display = 'block';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        document.getElementById('reviewForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const requestId = document.getElementById('reviewRequestId').value;
+            const status = document.getElementById('reviewStatus').value;
+            const message = document.getElementById('reviewMessage').value;
+
+            fetch('api_admin.php?action=review_verification', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    admin_id: currentAdmin.id,
+                    request_id: requestId,
+                    status: status,
+                    message: message
+                })
+            }).then(r => r.json()).then(data => {
+                toast(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    closeModal('reviewModal');
+                    loadVerifications();
+                    loadDashboard();
+                }
+            });
+        });
+
+        // 加载评价
+        function loadReviews() {
+            fetch(`api_admin.php?action=get_reviews&admin_id=${currentAdmin.id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const tbody = document.getElementById('reviewsTable');
+                        tbody.innerHTML = data.data.map(r => `
+                            <tr>
+                                <td>${r.id}</td>
+                                <td>${r.reviewer_name || '匿名'}</td>
+                                <td>${r.tutor_name || '-'}</td>
+                                <td>${'⭐'.repeat(r.rating)}</td>
+                                <td>${(r.content || '').substring(0, 50)}...</td>
+                                <td>${r.created_at}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteReview(${r.id})">删除</button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                });
+        }
+
+        function deleteReview(id) {
+            if (!confirm('确定要删除这条评价吗？')) return;
+            fetch('api_admin.php?action=delete_review', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ admin_id: currentAdmin.id, review_id: id })
+            }).then(r => r.json()).then(data => {
+                toast(data.message, data.success ? 'success' : 'error');
+                if (data.success) loadReviews();
+            });
+        }
+
+        // 发送通知
+        document.getElementById('notificationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const title = document.getElementById('notifyTitle').value;
+            const content = document.getElementById('notifyContent').value;
+            const target = document.getElementById('notifyTarget').value;
+
+            fetch('api_admin.php?action=send_notification', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    admin_id: currentAdmin.id,
+                    title: title,
+                    content: content,
+                    user_ids: [] // 空数组表示发送给所有人
+                })
+            }).then(r => r.json()).then(data => {
+                toast(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    document.getElementById('notificationForm').reset();
+                }
+            });
+        });
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        window.onclick = function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

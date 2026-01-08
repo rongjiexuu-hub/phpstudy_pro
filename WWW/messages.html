@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的消息 - 学缘家教通</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .navbar { background: rgba(255,255,255,0.95); padding: 1rem 0; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .nav-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #667eea; text-decoration: none; }
+        .nav-links { display: flex; list-style: none; gap: 2rem; }
+        .nav-links a { text-decoration: none; color: #333; font-weight: 500; }
+        .nav-links a:hover { color: #667eea; }
+        
+        .main-content { margin-top: 80px; padding: 2rem 20px; max-width: 1000px; margin-left: auto; margin-right: auto; }
+        
+        .page-header { background: white; border-radius: 15px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .page-title { font-size: 1.5rem; color: #333; margin-bottom: 1rem; }
+        .tabs { display: flex; gap: 10px; }
+        .tab { padding: 10px 20px; background: #f0f0f0; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .tab.active { background: #667eea; color: white; }
+        .tab:hover:not(.active) { background: #e0e0e0; }
+        
+        .message-list { background: white; border-radius: 15px; padding: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .message-item { padding: 1rem; border-bottom: 1px solid #eee; display: flex; gap: 1rem; cursor: pointer; transition: all 0.3s; }
+        .message-item:hover { background: #f8f9fa; }
+        .message-item:last-child { border-bottom: none; }
+        .message-item.unread { border-left: 3px solid #667eea; background: #f8f9ff; }
+        .message-avatar { width: 50px; height: 50px; border-radius: 50%; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+        .message-content { flex: 1; }
+        .message-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .message-sender { font-weight: 600; color: #333; }
+        .message-time { color: #999; font-size: 0.85rem; }
+        .message-subject { color: #555; margin-bottom: 5px; }
+        .message-preview { color: #888; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        .empty-state { text-align: center; padding: 4rem 2rem; color: #666; }
+        .empty-state .icon { font-size: 4rem; margin-bottom: 1rem; }
+        
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.95rem; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn:hover { transform: translateY(-2px); }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; }
+        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 15px; padding: 2rem; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
+        .modal-title { font-size: 1.25rem; font-weight: 600; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+        
+        .message-detail { padding: 1rem 0; }
+        .message-detail .sender { font-weight: 600; color: #667eea; margin-bottom: 0.5rem; }
+        .message-detail .time { color: #999; font-size: 0.85rem; margin-bottom: 1rem; }
+        .message-detail .body { line-height: 1.8; color: #333; }
+        
+        .reply-form { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #eee; }
+        .reply-form textarea { width: 100%; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; resize: vertical; min-height: 100px; margin-bottom: 1rem; }
+        
+        .toast { position: fixed; top: 100px; right: 20px; padding: 15px 25px; border-radius: 8px; color: white; z-index: 3000; animation: slideIn 0.3s ease; }
+        .toast.success { background: #28a745; }
+        .toast.error { background: #dc3545; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">学缘家教通</a>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="profile.html">个人中心</a></li>
+                <li><a href="messages.html" style="color: #667eea;">我的消息</a></li>
+                <li><a href="orders.html">我的订单</a></li>
+            </ul>
+            <button class="btn btn-secondary" onclick="logout()">退出</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">💬 我的消息</h1>
+            <div class="tabs">
+                <div class="tab active" data-type="all">全部消息</div>
+                <div class="tab" data-type="private">私信</div>
+                <div class="tab" data-type="system">系统通知</div>
+            </div>
+        </div>
+        
+        <div class="message-list" id="messageList">
+            <div class="empty-state">
+                <div class="icon">📭</div>
+                <p>加载中...</p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 1rem;">
+            <button class="btn btn-secondary" id="markAllReadBtn" onclick="markAllRead()">全部标为已读</button>
+        </div>
+    </main>
+
+    <!-- 消息详情模态框 -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalSubject">消息详情</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="message-detail">
+                <div class="sender" id="modalSender"></div>
+                <div class="time" id="modalTime"></div>
+                <div class="body" id="modalContent"></div>
+            </div>
+            <div class="reply-form" id="replyForm" style="display: none;">
+                <h4 style="margin-bottom: 1rem;">回复消息</h4>
+                <textarea id="replyContent" placeholder="输入回复内容..."></textarea>
+                <button class="btn btn-primary" onclick="sendReply()">发送回复</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let currentType = 'all';
+        let currentMessageId = null;
+        let currentSenderId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (!currentUser || !currentUser.id) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            loadMessages();
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentType = this.dataset.type;
+                    loadMessages();
+                });
+            });
+        });
+
+        function toast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function loadMessages() {
+            fetch(`api_messages.php?action=get_list&user_id=${currentUser.id}&type=${currentType}`)
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('messageList');
+                    if (data.success && data.data && data.data.length > 0) {
+                        container.innerHTML = data.data.map(m => `
+                            <div class="message-item ${m.is_read ? '' : 'unread'}" onclick="openMessage(${m.id}, ${m.sender_id}, '${m.message_type}')">
+                                <div class="message-avatar">${(m.sender_name || '系')[0]}</div>
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <span class="message-sender">${m.sender_name || '系统通知'}</span>
+                                        <span class="message-time">${formatTime(m.created_at)}</span>
+                                    </div>
+                                    <div class="message-subject">${m.subject || '无主题'}</div>
+                                    <div class="message-preview">${m.content.substring(0, 60)}${m.content.length > 60 ? '...' : ''}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        container.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>暂无消息</p></div>';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('messageList').innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>暂无消息</p></div>';
+                });
+        }
+
+        function formatTime(timeStr) {
+            const date = new Date(timeStr);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return '刚刚';
+            if (diff < 3600000) return Math.floor(diff/60000) + '分钟前';
+            if (diff < 86400000) return Math.floor(diff/3600000) + '小时前';
+            if (diff < 604800000) return Math.floor(diff/86400000) + '天前';
+            return date.toLocaleDateString();
+        }
+
+        function openMessage(id, senderId, type) {
+            currentMessageId = id;
+            currentSenderId = senderId;
+            
+            fetch(`api_messages.php?action=get_detail&message_id=${id}&user_id=${currentUser.id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const m = data.data;
+                        document.getElementById('modalSubject').textContent = m.subject || '消息详情';
+                        document.getElementById('modalSender').textContent = '来自：' + (m.sender_name || '系统');
+                        document.getElementById('modalTime').textContent = m.created_at;
+                        document.getElementById('modalContent').textContent = m.content;
+                        
+                        // 私信可以回复
+                        document.getElementById('replyForm').style.display = type === 'private' ? 'block' : 'none';
+                        
+                        document.getElementById('messageModal').style.display = 'block';
+                        loadMessages(); // 刷新列表以更新已读状态
+                    }
+                });
+        }
+
+        function closeModal() {
+            document.getElementById('messageModal').style.display = 'none';
+        }
+
+        function sendReply() {
+            const content = document.getElementById('replyContent').value.trim();
+            if (!content) {
+                toast('请输入回复内容', 'error');
+                return;
+            }
+            
+            fetch('api_messages.php?action=send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    sender_id: currentUser.id,
+                    receiver_id: currentSenderId,
+                    subject: '回复消息',
+                    content: content,
+                    message_type: 'private'
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                toast(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    document.getElementById('replyContent').value = '';
+                    closeModal();
+                }
+            });
+        }
+
+        function markAllRead() {
+            fetch('api_messages.php?action=mark_all_read', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: currentUser.id })
+            })
+            .then(r => r.json())
+            .then(data => {
+                toast(data.message, data.success ? 'success' : 'error');
+                if (data.success) loadMessages();
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        window.onclick = function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
+

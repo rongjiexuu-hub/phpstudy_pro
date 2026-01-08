@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 学缘家教通</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 0;
+            color: white;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo { font-size: 1.5rem; font-weight: bold; color: white; text-decoration: none; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { color: white; text-decoration: none; opacity: 0.9; transition: opacity 0.3s; }
+        .nav-links a:hover { opacity: 1; }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 80px auto 40px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+        
+        .user-info {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0 auto 10px;
+        }
+        
+        .user-name { font-size: 1.2rem; font-weight: 600; color: #333; }
+        .user-type { font-size: 0.9rem; color: #666; margin-top: 5px; }
+        
+        .verified-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-top: 8px;
+        }
+        
+        .unverified-badge {
+            display: inline-block;
+            background: #ffc107;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-top: 8px;
+        }
+        
+        .menu-list { list-style: none; }
+        
+        .menu-item {
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #555;
+        }
+        
+        .menu-item:hover { background: #f5f7fa; color: #667eea; }
+        .menu-item.active { background: #667eea; color: white; }
+        .menu-item .badge { background: #dc3545; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin-left: auto; }
+        
+        /* 主内容区 */
+        .content-area {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        /* 卡片列表 */
+        .card-list { display: grid; gap: 15px; }
+        
+        .info-card {
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .info-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .card-title { font-size: 1.1rem; font-weight: 600; color: #333; }
+        
+        .card-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .status-active { background: #d4edda; color: #28a745; }
+        .status-inactive { background: #f8d7da; color: #dc3545; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        
+        .card-meta {
+            display: flex;
+            gap: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a6fd8; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-outline { background: white; border: 1px solid #667eea; color: #667eea; }
+        .btn-outline:hover { background: #667eea; color: white; }
+        
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state .icon { font-size: 4rem; margin-bottom: 20px; }
+        .empty-state p { font-size: 1.1rem; margin-bottom: 20px; }
+        
+        /* 标签页内容 */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* 消息提示 */
+        .message {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 3000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .message.success { background: #28a745; }
+        .message.error { background: #dc3545; }
+        .message.info { background: #17a2b8; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                margin-top: 70px;
+            }
+            
+            .sidebar { display: none; }
+            
+            .nav-links { display: none; }
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number { font-size: 2rem; font-weight: bold; }
+        .stat-label { font-size: 0.9rem; opacity: 0.9; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">学缘家教通</a>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="user_center.html">个人中心</a></li>
+                <li><a href="#" onclick="logout()">退出登录</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="user-info">
+                <div class="avatar" id="userAvatar">U</div>
+                <div class="user-name" id="userName">用户名</div>
+                <div class="user-type" id="userType">普通用户</div>
+                <span class="unverified-badge" id="verifyBadge">未认证</span>
+            </div>
+            
+            <ul class="menu-list">
+                <li class="menu-item active" onclick="showTab('overview')">
+                    📊 个人概览
+                </li>
+                <li class="menu-item" onclick="showTab('my-posts')">
+                    📝 我的发布
+                </li>
+                <li class="menu-item" onclick="showTab('my-orders')">
+                    📋 我的订单
+                </li>
+                <li class="menu-item" onclick="showTab('my-favorites')">
+                    ⭐ 我的收藏
+                </li>
+                <li class="menu-item" onclick="showTab('messages')">
+                    💬 消息中心
+                    <span class="badge" id="unreadCount" style="display: none;">0</span>
+                </li>
+                <li class="menu-item" onclick="showTab('verification')">
+                    ✅ 身份认证
+                </li>
+                <li class="menu-item" onclick="showTab('settings')">
+                    ⚙️ 账号设置
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="content-area">
+            <!-- 个人概览 -->
+            <div id="overview" class="tab-content active">
+                <h2 class="section-title">📊 个人概览</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="statPosts">0</div>
+                        <div class="stat-label">发布数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="statOrders">0</div>
+                        <div class="stat-label">订单数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="statFavorites">0</div>
+                        <div class="stat-label">收藏数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="statMessages">0</div>
+                        <div class="stat-label">未读消息</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 15px; color: #333;">最近活动</h3>
+                <div class="card-list" id="recentActivity">
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <p>暂无最近活动</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 我的发布 -->
+            <div id="my-posts" class="tab-content">
+                <h2 class="section-title">📝 我的发布</h2>
+                <div class="card-list" id="myPostsList">
+                    <div class="empty-state">
+                        <div class="icon">📝</div>
+                        <p>您还没有发布任何信息</p>
+                        <button class="btn btn-primary" onclick="location.href='index.html'">去发布</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 我的订单 -->
+            <div id="my-orders" class="tab-content">
+                <h2 class="section-title">📋 我的订单</h2>
+                <div class="card-list" id="myOrdersList">
+                    <div class="empty-state">
+                        <div class="icon">📋</div>
+                        <p>暂无订单记录</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 我的收藏 -->
+            <div id="my-favorites" class="tab-content">
+                <h2 class="section-title">⭐ 我的收藏</h2>
+                <div class="card-list" id="myFavoritesList">
+                    <div class="empty-state">
+                        <div class="icon">⭐</div>
+                        <p>您还没有收藏任何信息</p>
+                        <button class="btn btn-primary" onclick="location.href='index.html'">去浏览</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 消息中心 -->
+            <div id="messages" class="tab-content">
+                <h2 class="section-title">💬 消息中心</h2>
+                <div class="card-list" id="messagesList">
+                    <div class="empty-state">
+                        <div class="icon">💬</div>
+                        <p>暂无消息</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 身份认证 -->
+            <div id="verification" class="tab-content">
+                <h2 class="section-title">✅ 身份认证</h2>
+                
+                <div class="info-card">
+                    <div class="card-header">
+                        <span class="card-title">🪪 实名认证</span>
+                        <span class="card-status status-pending" id="idCardStatus">未认证</span>
+                    </div>
+                    <p style="color: #666; margin-bottom: 15px;">完成实名认证后，您发布的信息将获得"已认证"标识，更容易获得信任。</p>
+                    <form id="idCardForm">
+                        <div class="form-group">
+                            <label>真实姓名</label>
+                            <input type="text" id="realName" placeholder="请输入身份证上的姓名" required>
+                        </div>
+                        <div class="form-group">
+                            <label>身份证号码</label>
+                            <input type="text" id="idNumber" placeholder="请输入18位身份证号码" maxlength="18" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">提交认证</button>
+                    </form>
+                </div>
+
+                <div class="info-card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <span class="card-title">🎓 学历认证</span>
+                        <span class="card-status status-pending" id="eduStatus">未认证</span>
+                    </div>
+                    <p style="color: #666; margin-bottom: 15px;">上传学历证书，证明您的教育背景。</p>
+                    <form id="educationForm">
+                        <div class="form-group">
+                            <label>学历证书照片</label>
+                            <input type="file" id="eduCertFile" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary">提交认证</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 账号设置 -->
+            <div id="settings" class="tab-content">
+                <h2 class="section-title">⚙️ 账号设置</h2>
+                
+                <div class="info-card">
+                    <div class="card-header">
+                        <span class="card-title">基本信息</span>
+                    </div>
+                    <form id="profileForm">
+                        <div class="form-group">
+                            <label>用户名</label>
+                            <input type="text" id="editUsername" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>邮箱</label>
+                            <input type="email" id="editEmail">
+                        </div>
+                        <div class="form-group">
+                            <label>手机号</label>
+                            <input type="tel" id="editPhone" placeholder="请输入手机号">
+                        </div>
+                        <button type="submit" class="btn btn-primary">保存修改</button>
+                    </form>
+                </div>
+
+                <div class="info-card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <span class="card-title">修改密码</span>
+                    </div>
+                    <form id="passwordForm">
+                        <div class="form-group">
+                            <label>当前密码</label>
+                            <input type="password" id="currentPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label>新密码</label>
+                            <input type="password" id="newPassword" required minlength="8">
+                        </div>
+                        <div class="form-group">
+                            <label>确认新密码</label>
+                            <input type="password" id="confirmNewPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">修改密码</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLogin();
+            loadUserData();
+        });
+
+        // 检查登录状态
+        function checkLogin() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (!currentUser || !currentUser.id) {
+                showMessage('请先登录', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+                return false;
+            }
+            return true;
+        }
+
+        // 加载用户数据
+        function loadUserData() {
+            if (!currentUser) return;
+            
+            // 更新头像和用户名
+            document.getElementById('userAvatar').textContent = (currentUser.fullName || currentUser.username).charAt(0);
+            document.getElementById('userName').textContent = currentUser.fullName || currentUser.username;
+            document.getElementById('userType').textContent = getUserTypeText(currentUser.user_type);
+            
+            // 更新表单
+            document.getElementById('editUsername').value = currentUser.username || '';
+            document.getElementById('editEmail').value = currentUser.email || '';
+            document.getElementById('editPhone').value = currentUser.phone || '';
+            
+            // 加载各项数据
+            loadMyPosts();
+            loadMyOrders();
+            loadMyFavorites();
+            loadMessages();
+            loadStats();
+        }
+
+        // 获取用户类型文本
+        function getUserTypeText(type) {
+            const types = {
+                'student': '学生',
+                'tutor': '家教老师',
+                'parent': '家长'
+            };
+            return types[type] || '普通用户';
+        }
+
+        // 切换标签页
+        function showTab(tabId) {
+            // 隐藏所有内容
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 移除所有菜单项的活动状态
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 显示选中的内容
+            document.getElementById(tabId).classList.add('active');
+            
+            // 设置菜单项活动状态
+            event.target.closest('.menu-item').classList.add('active');
+        }
+
+        // 加载我的发布
+        function loadMyPosts() {
+            const container = document.getElementById('myPostsList');
+            
+            // 同时加载家教信息和需求
+            Promise.all([
+                fetch(`api_get_tutor_profiles.php?user_id=${currentUser.id}`).then(r => r.json()),
+                fetch(`api_get_tutoring_requests.php?user_id=${currentUser.id}`).then(r => r.json())
+            ])
+            .then(([tutorData, requestData]) => {
+                let html = '';
+                let count = 0;
+                
+                // 家教信息
+                if (tutorData.success && tutorData.data.profiles) {
+                    tutorData.data.profiles.forEach(item => {
+                        count++;
+                        html += createPostCard(item, 'tutor');
+                    });
+                }
+                
+                // 家教需求
+                if (requestData.success && requestData.data.requests) {
+                    requestData.data.requests.forEach(item => {
+                        count++;
+                        html += createPostCard(item, 'request');
+                    });
+                }
+                
+                if (count === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">📝</div>
+                            <p>您还没有发布任何信息</p>
+                            <button class="btn btn-primary" onclick="location.href='index.html'">去发布</button>
+                        </div>`;
+                } else {
+                    container.innerHTML = html;
+                }
+                
+                document.getElementById('statPosts').textContent = count;
+            })
+            .catch(error => {
+                console.error('加载发布失败:', error);
+            });
+        }
+
+        // 创建发布卡片
+        function createPostCard(item, type) {
+            const statusClass = item.status === 'active' ? 'status-active' : 'status-inactive';
+            const statusText = item.status === 'active' ? '已发布' : '已下架';
+            const typeText = type === 'tutor' ? '家教信息' : '家教需求';
+            const title = type === 'tutor' ? item.name : item.student_name;
+            
+            return `
+                <div class="info-card">
+                    <div class="card-header">
+                        <span class="card-title">${title} <small style="color: #666;">(${typeText})</small></span>
+                        <span class="card-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="card-meta">
+                        <span>📚 ${item.subjects}</span>
+                        <span>📍 ${item.location || item.teaching_areas}</span>
+                        <span>💰 ${item.salary}</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline" onclick="editPost(${item.id}, '${type}')">编辑</button>
+                        <button class="btn btn-danger" onclick="deletePost(${item.id}, '${type}')">删除</button>
+                    </div>
+                </div>`;
+        }
+
+        // 加载我的订单
+        function loadMyOrders() {
+            fetch(`api_get_orders.php?user_id=${currentUser.id}`)
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('myOrdersList');
+                    if (data.success && data.data && data.data.length > 0) {
+                        container.innerHTML = data.data.map(order => createOrderCard(order)).join('');
+                        document.getElementById('statOrders').textContent = data.data.length;
+                    }
+                })
+                .catch(error => console.error('加载订单失败:', error));
+        }
+
+        // 创建订单卡片
+        function createOrderCard(order) {
+            const statusMap = {
+                'pending': { text: '待确认', class: 'status-pending' },
+                'confirmed': { text: '已确认', class: 'status-active' },
+                'in_progress': { text: '进行中', class: 'status-active' },
+                'completed': { text: '已完成', class: 'status-active' },
+                'cancelled': { text: '已取消', class: 'status-inactive' }
+            };
+            const status = statusMap[order.status] || statusMap['pending'];
+            
+            return `
+                <div class="info-card">
+                    <div class="card-header">
+                        <span class="card-title">订单号: ${order.order_no}</span>
+                        <span class="card-status ${status.class}">${status.text}</span>
+                    </div>
+                    <div class="card-meta">
+                        <span>📚 ${order.subjects}</span>
+                        <span>💰 ¥${order.total_amount || 0}</span>
+                        <span>📅 ${order.created_at}</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline" onclick="viewOrder(${order.id})">查看详情</button>
+                    </div>
+                </div>`;
+        }
+
+        // 加载我的收藏
+        function loadMyFavorites() {
+            fetch(`api_favorites.php?action=list&user_id=${currentUser.id}`)
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('myFavoritesList');
+                    if (data.success && data.data && data.data.length > 0) {
+                        container.innerHTML = data.data.map(fav => createFavoriteCard(fav)).join('');
+                        document.getElementById('statFavorites').textContent = data.data.length;
+                    }
+                })
+                .catch(error => console.error('加载收藏失败:', error));
+        }
+
+        // 创建收藏卡片
+        function createFavoriteCard(fav) {
+            return `
+                <div class="info-card">
+                    <div class="card-header">
+                        <span class="card-title">${fav.title}</span>
+                        <span class="card-status status-active">${fav.item_type === 'tutor' ? '家教老师' : '家教需求'}</span>
+                    </div>
+                    <div class="card-meta">
+                        <span>📚 ${fav.subjects}</span>
+                        <span>📍 ${fav.location}</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline" onclick="viewFavorite(${fav.item_id}, '${fav.item_type}')">查看</button>
+                        <button class="btn btn-danger" onclick="removeFavorite(${fav.id})">取消收藏</button>
+                    </div>
+                </div>`;
+        }
+
+        // 加载消息
+        function loadMessages() {
+            fetch(`api_messages.php?action=list&user_id=${currentUser.id}`)
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('messagesList');
+                    if (data.success && data.data && data.data.length > 0) {
+                        container.innerHTML = data.data.map(msg => createMessageCard(msg)).join('');
+                        const unread = data.data.filter(m => !m.is_read).length;
+                        if (unread > 0) {
+                            document.getElementById('unreadCount').textContent = unread;
+                            document.getElementById('unreadCount').style.display = 'inline';
+                        }
+                        document.getElementById('statMessages').textContent = unread;
+                    }
+                })
+                .catch(error => console.error('加载消息失败:', error));
+        }
+
+        // 创建消息卡片
+        function createMessageCard(msg) {
+            const readClass = msg.is_read ? '' : 'style="background: #f8f9fa;"';
+            return `
+                <div class="info-card" ${readClass}>
+                    <div class="card-header">
+                        <span class="card-title">来自: ${msg.sender_name}</span>
+                        <span style="color: #666; font-size: 0.85rem;">${msg.created_at}</span>
+                    </div>
+                    <p style="color: #555; line-height: 1.6;">${msg.content}</p>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="replyMessage(${msg.sender_id})">回复</button>
+                        ${!msg.is_read ? `<button class="btn btn-outline" onclick="markAsRead(${msg.id})">标记已读</button>` : ''}
+                    </div>
+                </div>`;
+        }
+
+        // 加载统计数据
+        function loadStats() {
+            // 统计数据已在各个加载函数中更新
+        }
+
+        // 删除发布
+        function deletePost(id, type) {
+            if (!confirm('确定要删除这条发布吗？')) return;
+            
+            const api = type === 'tutor' ? 'api_delete_tutor_profile.php' : 'api_delete_tutoring_request.php';
+            
+            fetch(api, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, user_id: currentUser.id })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('删除成功', 'success');
+                    loadMyPosts();
+                } else {
+                    showMessage(data.message || '删除失败', 'error');
+                }
+            })
+            .catch(error => {
+                showMessage('网络错误', 'error');
+            });
+        }
+
+        // 编辑发布
+        function editPost(id, type) {
+            showMessage('编辑功能开发中...', 'info');
+        }
+
+        // 取消收藏
+        function removeFavorite(id) {
+            fetch('api_favorites.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'remove', id: id, user_id: currentUser.id })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('已取消收藏', 'success');
+                    loadMyFavorites();
+                }
+            });
+        }
+
+        // 回复消息
+        function replyMessage(senderId) {
+            const content = prompt('请输入回复内容:');
+            if (!content) return;
+            
+            fetch('api_messages.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'send',
+                    sender_id: currentUser.id,
+                    receiver_id: senderId,
+                    content: content
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('回复成功', 'success');
+                } else {
+                    showMessage(data.message || '发送失败', 'error');
+                }
+            });
+        }
+
+        // 标记已读
+        function markAsRead(msgId) {
+            fetch('api_messages.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'read', id: msgId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    loadMessages();
+                }
+            });
+        }
+
+        // 提交身份认证
+        document.getElementById('idCardForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const data = {
+                user_id: currentUser.id,
+                type: 'id_card',
+                real_name: document.getElementById('realName').value,
+                id_number: document.getElementById('idNumber').value
+            };
+            
+            fetch('api_verification.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('认证申请已提交，请等待审核', 'success');
+                    document.getElementById('idCardStatus').textContent = '审核中';
+                    document.getElementById('idCardStatus').className = 'card-status status-pending';
+                } else {
+                    showMessage(data.message || '提交失败', 'error');
+                }
+            });
+        });
+
+        // 修改密码
+        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmNewPassword').value;
+            
+            if (newPass !== confirmPass) {
+                showMessage('两次输入的密码不一致', 'error');
+                return;
+            }
+            
+            fetch('api_change_password.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: currentUser.id,
+                    current_password: document.getElementById('currentPassword').value,
+                    new_password: newPass
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('密码修改成功', 'success');
+                    this.reset();
+                } else {
+                    showMessage(data.message || '修改失败', 'error');
+                }
+            });
+        });
+
+        // 保存个人信息
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            fetch('api_update_profile.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: currentUser.id,
+                    email: document.getElementById('editEmail').value,
+                    phone: document.getElementById('editPhone').value
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('保存成功', 'success');
+                    // 更新本地存储
+                    currentUser.email = document.getElementById('editEmail').value;
+                    currentUser.phone = document.getElementById('editPhone').value;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                } else {
+                    showMessage(data.message || '保存失败', 'error');
+                }
+            });
+        });
+
+        // 退出登录
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        // 显示消息
+        function showMessage(text, type = 'info') {
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.textContent = text;
+            document.body.appendChild(message);
+            setTimeout(() => message.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
+

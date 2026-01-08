@@ -105,7 +105,15 @@ try {
     }
     
     // 查询用户（支持用户名或邮箱登录）- 适配现有表结构
-    $sql = "SELECT id, username, email, password FROM simple_users WHERE username = ? OR email = ?";
+    // 先检查is_admin字段是否存在
+    $check_column = $conn->query("SHOW COLUMNS FROM simple_users LIKE 'is_admin'");
+    $has_is_admin = $check_column && $check_column->num_rows > 0;
+    
+    if ($has_is_admin) {
+        $sql = "SELECT id, username, email, password, is_admin FROM simple_users WHERE username = ? OR email = ?";
+    } else {
+        $sql = "SELECT id, username, email, password FROM simple_users WHERE username = ? OR email = ?";
+    }
     error_log("SQL查询: " . $sql);
     error_log("用户名参数: " . $username);
     
@@ -165,7 +173,8 @@ try {
             'username' => $user['username'],
             'email' => $user['email'],
             'fullName' => $user['username'], // 使用用户名作为显示名称
-            'role' => 'student' // 默认角色
+            'role' => 'student', // 默认角色
+            'is_admin' => isset($user['is_admin']) ? (bool)$user['is_admin'] : false
         ]
     ]);
     
